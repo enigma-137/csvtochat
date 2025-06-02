@@ -1,46 +1,58 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef } from "react"
-import { Header } from "@/components/header"
-import { ChatInput } from "@/components/chat-input"
-import { UploadArea } from "@/components/upload-area"
-import { QuestionSuggestionCard } from "@/components/question-suggestion-card"
+import { useState, useRef } from "react";
+import { Header } from "@/components/header";
+import { ChatInput } from "@/components/chat-input";
+import { UploadArea } from "@/components/upload-area";
+import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 
 interface Message {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  isThinking?: boolean
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  isThinking?: boolean;
 }
 
 interface SuggestedQuestion {
-  id: string
-  text: string
+  id: string;
+  text: string;
 }
 
 export default function CSVToChat() {
-  const [currentScreen, setCurrentScreen] = useState<"upload" | "chat">("upload")
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [csvColumns, setCsvColumns] = useState<string[]>([])
-  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([])
-  const [messages, setMessages] = useState<Message[]>([])
-  const [inputValue, setInputValue] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [currentScreen, setCurrentScreen] = useState<"upload" | "chat">(
+    "upload"
+  );
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [csvColumns, setCsvColumns] = useState<string[]>([]);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<
+    SuggestedQuestion[]
+  >([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
     if (file && file.type === "text/csv") {
-      setUploadedFile(file)
-      setIsProcessing(true)
+      setUploadedFile(file);
+      setIsProcessing(true);
 
       // Simulate CSV processing
       setTimeout(() => {
         // Mock extracted columns
-        const mockColumns = ["Industry", "Total_Income_2024", "Total_Income_2023", "Growth_Rate", "Assets_2024"]
-        setCsvColumns(mockColumns)
+        const mockColumns = [
+          "Industry",
+          "Total_Income_2024",
+          "Total_Income_2023",
+          "Growth_Rate",
+          "Assets_2024",
+        ];
+        setCsvColumns(mockColumns);
 
         // Generate AI suggestions based on columns
         const suggestions: SuggestedQuestion[] = [
@@ -56,46 +68,46 @@ export default function CSVToChat() {
             id: "3",
             text: "What is the current versus total assets distribution in 2024?",
           },
-        ]
-        setSuggestedQuestions(suggestions)
-        setIsProcessing(false)
-      }, 2000)
+        ];
+        setSuggestedQuestions(suggestions);
+        setIsProcessing(false);
+      }, 2000);
     }
-  }
+  };
 
   const removeFile = () => {
-    setUploadedFile(null)
-    setCsvColumns([])
-    setSuggestedQuestions([])
+    setUploadedFile(null);
+    setCsvColumns([]);
+    setSuggestedQuestions([]);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const handleSuggestionClick = (question: string) => {
-    handleSendMessage(question)
-  }
+    handleSendMessage(question);
+  };
 
   const handleSendMessage = async (messageText?: string) => {
-    const text = messageText || inputValue.trim()
-    if (!text) return
+    const text = messageText || inputValue.trim();
+    if (!text) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
       content: text,
-    }
+    };
 
     const thinkingMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
       content: "Thinking...",
       isThinking: true,
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage, thinkingMessage])
-    setCurrentScreen("chat")
-    setInputValue("")
+    setMessages((prev) => [...prev, userMessage, thinkingMessage]);
+    setCurrentScreen("chat");
+    setInputValue("");
 
     // Simulate AI response
     setTimeout(() => {
@@ -103,11 +115,13 @@ export default function CSVToChat() {
         id: (Date.now() + 2).toString(),
         role: "assistant",
         content: generateAIResponse(text),
-      }
+      };
 
-      setMessages((prev) => prev.filter((m) => !m.isThinking).concat([userMessage, aiResponse]))
-    }, 2000)
-  }
+      setMessages((prev) =>
+        prev.filter((m) => !m.isThinking).concat([userMessage, aiResponse])
+      );
+    }, 2000);
+  };
 
   const generateAIResponse = (question: string): string => {
     if (question.toLowerCase().includes("income trend")) {
@@ -129,17 +143,17 @@ plt.title("Total Income by Industry (2024)")
 • **Retail**: $1.1B (up 6%)
 • **Manufacturing**: $1.3B (up 3%)
 
-Technology remains the fastest-growing sector, driven by increased investment in software and services, while Healthcare shows steady growth due to rising demand in medical services.`
+Technology remains the fastest-growing sector, driven by increased investment in software and services, while Healthcare shows steady growth due to rising demand in medical services.`;
     }
 
-    return "I can help you analyze your CSV data. Please ask me specific questions about the trends, comparisons, or insights you'd like to explore."
-  }
+    return "I can help you analyze your CSV data. Please ask me specific questions about the trends, comparisons, or insights you'd like to explore.";
+  };
 
   const startNewChat = () => {
-    setMessages([])
-    setCurrentScreen("upload")
-    setInputValue("")
-  }
+    setMessages([]);
+    setCurrentScreen("upload");
+    setInputValue("");
+  };
 
   if (currentScreen === "upload") {
     return (
@@ -147,20 +161,31 @@ Technology remains the fastest-growing sector, driven by increased investment in
         <Header onNewChat={startNewChat} />
 
         <div className="flex flex-col items-center px-6">
-          <UploadArea onFileSelect={() => fileInputRef.current?.click()} hasFile={!!uploadedFile} />
+          <UploadArea
+            onFileSelect={() => fileInputRef.current?.click()}
+            hasFile={!!uploadedFile}
+          />
 
           {/* Hidden file input */}
-          <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
 
           {/* Large Input Area */}
-          <ChatInput
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={handleSendMessage}
-            uploadedFile={uploadedFile}
-            onRemoveFile={removeFile}
-            multiline={true}
-          />
+          {uploadedFile && (
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={handleSendMessage}
+              uploadedFile={uploadedFile}
+              onRemoveFile={removeFile}
+              multiline={true}
+            />
+          )}
 
           {/* Processing State */}
           {isProcessing && (
@@ -175,7 +200,9 @@ Technology remains the fastest-growing sector, driven by increased investment in
             <div className="w-full max-w-sm mt-8">
               <p className="text-slate-500 text-sm mb-4">
                 <span className="font-medium">Suggestions</span>{" "}
-                <span className="text-slate-400">based on your uploaded CSV:</span>
+                <span className="text-slate-400">
+                  based on your uploaded CSV:
+                </span>
               </p>
               <div className="space-y-3">
                 {suggestedQuestions.map((suggestion) => (
@@ -190,7 +217,7 @@ Technology remains the fastest-growing sector, driven by increased investment in
           )}
         </div>
       </div>
-    )
+    );
   }
 
   // Chat Screen
@@ -221,7 +248,9 @@ Technology remains the fastest-growing sector, driven by increased investment in
                     <div className="text-slate-800 text-sm leading-relaxed">
                       {message.content.split("\n\n").map((paragraph, index) => {
                         if (paragraph.startsWith("```python")) {
-                          const code = paragraph.replace("```python\n", "").replace("\n```", "")
+                          const code = paragraph
+                            .replace("```python\n", "")
+                            .replace("\n```", "");
                           return (
                             <div key={index} className="my-4">
                               <div className="bg-slate-100 rounded-lg overflow-hidden">
@@ -233,28 +262,33 @@ Technology remains the fastest-growing sector, driven by increased investment in
                                 </pre>
                               </div>
                             </div>
-                          )
+                          );
                         }
 
                         if (paragraph.startsWith("•")) {
-                          const bulletPoints = paragraph.split("\n")
+                          const bulletPoints = paragraph.split("\n");
                           return (
                             <div key={index} className="space-y-2 my-4">
                               {bulletPoints.map((point, pointIndex) => (
-                                <div key={pointIndex} className="flex items-start gap-2">
+                                <div
+                                  key={pointIndex}
+                                  className="flex items-start gap-2"
+                                >
                                   <div className="w-1 h-1 bg-slate-400 rounded-full mt-2 flex-shrink-0"></div>
-                                  <span className="text-sm">{point.replace("• ", "")}</span>
+                                  <span className="text-sm">
+                                    {point.replace("• ", "")}
+                                  </span>
                                 </div>
                               ))}
                             </div>
-                          )
+                          );
                         }
 
                         return (
                           <p key={index} className="mb-4 last:mb-0">
                             {paragraph}
                           </p>
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -274,5 +308,5 @@ Technology remains the fastest-growing sector, driven by increased investment in
         onRemoveFile={removeFile}
       />
     </div>
-  )
+  );
 }
