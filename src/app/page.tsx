@@ -204,7 +204,7 @@ Technology remains the fastest-growing sector, driven by increased investment in
                   based on your uploaded CSV:
                 </span>
               </p>
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {suggestedQuestions.map((suggestion) => (
                   <QuestionSuggestionCard
                     key={suggestion.id}

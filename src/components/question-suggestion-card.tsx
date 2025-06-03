@@ -1,25 +1,28 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { Lightbulb } from "lucide-react"
+import { Card } from "@/components/ui/card";
+import { Lightbulb } from "lucide-react";
 
 interface QuestionSuggestionCardProps {
-  question: string
-  onClick: () => void
+  question: string;
+  onClick: () => void;
 }
 
-export function QuestionSuggestionCard({ question, onClick }: QuestionSuggestionCardProps) {
+export function QuestionSuggestionCard({
+  question,
+  onClick,
+}: QuestionSuggestionCardProps) {
   return (
     <Card
-      className="p-4 cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 shadow-sm"
+      className="flex justify-start items-start overflow-hidden gap-2.5 px-3 py-2 rounded-lg bg-slate-50 border-[0.7px] border-[#cad5e2]"
       onClick={onClick}
     >
       <div className="flex items-start gap-3">
         <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Lightbulb className="w-3 h-3 text-slate-500" />
+          <img src="/suggestion.svg" alt="suggestion" className="size-[18px]" />
         </div>
         <p className="text-sm text-slate-700 leading-relaxed">{question}</p>
       </div>
     </Card>
-  )
+  );
 }
