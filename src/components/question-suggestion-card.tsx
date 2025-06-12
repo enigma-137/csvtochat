@@ -14,7 +14,7 @@ export function QuestionSuggestionCard({
 }: QuestionSuggestionCardProps) {
   return (
     <Card
-      className="flex justify-start items-start overflow-hidden gap-2.5 px-3 py-2 rounded-lg bg-slate-50 border-[0.7px] border-[#cad5e2]"
+      className="flex justify-start items-start overflow-hidden gap-2.5 px-3 py-2 rounded-lg bg-slate-50 border-[0.7px] border-[#cad5e2] w-fit md:min-w-[440px]"
       onClick={onClick}
     >
       <div className="flex items-start gap-3">

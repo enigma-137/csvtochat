@@ -33,7 +33,7 @@ export function ChatInput({
 
   if (multiline) {
     return (
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm md:max-w-2xl">
         <div className="relative border border-slate-200 rounded-xl p-3">
           <textarea
             value={value}
@@ -46,7 +46,7 @@ export function ChatInput({
           <div className="flex flex-row justify-between">
             {uploadedFile && (
               <div
-                className="flex flex-row items-center justify-center w-[1 56px] relative overflow-hidden gap-1.5 px-2 py-1.5 rounded bg-slate-100 border-[0.5px] border-[#90a1b9]"
+                className="flex flex-row items-center justify-center min-w-[156px] relative overflow-hidden gap-1.5 px-2 py-1.5 rounded-lg max-h-[44px] bg-slate-100 border-[0.5px] border-[#90a1b9] md:px-4 md:py-3.5"
                 style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}
               >
                 <img src="/uploaded-file.svg" alt="" className="w-4 h-4" />
@@ -58,7 +58,7 @@ export function ChatInput({
                   </div>
                 </div>
                 <button className="p-1 cursor-pointer" onClick={onRemoveFile}>
-                  <img src="/fileX.svg" alt="" className="size-2" />
+                  <img src="/fileX.svg" alt="" className="size-2 min-w-2" />
                 </button>
               </div>
             )}
@@ -67,7 +67,7 @@ export function ChatInput({
               onClick={onSend}
               disabled={!value.trim()}
               size="sm"
-              className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
+              className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500 md:size-[44px]"
             >
               <img src="/send.svg" className="size-3" />
             </Button>

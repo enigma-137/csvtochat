@@ -197,7 +197,7 @@ Technology remains the fastest-growing sector, driven by increased investment in
 
           {/* Suggestions */}
           {suggestedQuestions.length > 0 && !isProcessing && (
-            <div className="w-full max-w-sm mt-8">
+            <div className="w-full max-w-sm mt-8 md:max-w-2xl">
               <p className="text-slate-500 text-sm mb-4">
                 <span className="font-medium">Suggestions</span>{" "}
                 <span className="text-slate-400">
