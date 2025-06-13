@@ -2,22 +2,23 @@
 
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Header } from "@/components/header";
 import { ChatInput } from "@/components/chat-input";
 import { UploadArea } from "@/components/upload-area";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
+import { extractCsvData } from "@/lib/csvUtils";
+
+export interface SuggestedQuestion {
+  id: string;
+  text: string;
+}
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   isThinking?: boolean;
-}
-
-interface SuggestedQuestion {
-  id: string;
-  text: string;
 }
 
 export default function CSVToChat() {
@@ -34,46 +35,50 @@ export default function CSVToChat() {
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file && file.type === "text/csv") {
-      setUploadedFile(file);
-      setIsProcessing(true);
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file && file.type === "text/csv") {
+        setUploadedFile(file);
+        setIsProcessing(true);
 
-      // Simulate CSV processing
-      setTimeout(() => {
-        // Mock extracted columns
-        const mockColumns = [
-          "Industry",
-          "Total_Income_2024",
-          "Total_Income_2023",
-          "Growth_Rate",
-          "Assets_2024",
-        ];
-        setCsvColumns(mockColumns);
+        try {
+          const { headers, sampleRows } = await extractCsvData(file);
+          setCsvColumns(headers);
 
-        // Generate AI suggestions based on columns
-        const suggestions: SuggestedQuestion[] = [
-          {
-            id: "1",
-            text: "What is the total income trend by industry in the year 2024?",
-          },
-          {
-            id: "2",
-            text: "How do total expenditures and income compare in 2023?",
-          },
-          {
-            id: "3",
-            text: "What is the current versus total assets distribution in 2024?",
-          },
-        ];
-        setSuggestedQuestions(suggestions);
-        setIsProcessing(false);
-      }, 2000);
-    }
-  };
+          // sleep for 1 second
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+
+          const suggestions: SuggestedQuestion[] = [
+            {
+              id: "1",
+              text: `What is the total income trend by ${
+                headers[0] || "industry"
+              } in the year 2024?`,
+            },
+            {
+              id: "2",
+              text: `How do total expenditures and income compare in 2023 for ${
+                headers[0] || "each industry"
+              }?`,
+            },
+            {
+              id: "3",
+              text: `What is the current versus total assets distribution in 2024 for ${
+                headers[0] || "each industry"
+              }?`,
+            },
+          ];
+          setSuggestedQuestions(suggestions);
+        } catch (error) {
+          console.error("Failed to process CSV file:", error);
+        } finally {
+          setIsProcessing(false);
+        }
+      }
+    },
+    []
+  );
 
   const removeFile = () => {
     setUploadedFile(null);
@@ -189,9 +194,18 @@ Technology remains the fastest-growing sector, driven by increased investment in
 
           {/* Processing State */}
           {isProcessing && (
-            <div className="text-center text-slate-500 my-8">
-              <div className="animate-spin w-6 h-6 border-2 border-slate-300 border-t-slate-600 rounded-full mx-auto mb-2"></div>
-              <p className="text-sm">Processing your CSV file...</p>
+            <div className="w-full max-w-sm mt-8 md:max-w-2xl">
+              <p className="text-slate-500 text-sm mb-4 animate-pulse">
+                <span className="font-medium">Generating suggestions</span>{" "}
+                <span className="text-slate-400">...</span>
+              </p>
+              <div className="flex flex-col gap-3">
+                {Array(3)
+                  .fill(null)
+                  .map((_, idx) => (
+                    <QuestionSuggestionCard key={idx} question={""} isLoading />
+                  ))}
+              </div>
             </div>
           )}
 
