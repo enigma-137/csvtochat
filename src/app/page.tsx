@@ -46,30 +46,20 @@ export default function CSVToChat() {
           const { headers, sampleRows } = await extractCsvData(file);
           setCsvColumns(headers);
 
-          // sleep for 1 second
-          await new Promise((resolve) => setTimeout(resolve, 3000));
+          const response = await fetch("/api/generate-questions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ columns: headers }),
+          });
 
-          const suggestions: SuggestedQuestion[] = [
-            {
-              id: "1",
-              text: `What is the total income trend by ${
-                headers[0] || "industry"
-              } in the year 2024?`,
-            },
-            {
-              id: "2",
-              text: `How do total expenditures and income compare in 2023 for ${
-                headers[0] || "each industry"
-              }?`,
-            },
-            {
-              id: "3",
-              text: `What is the current versus total assets distribution in 2024 for ${
-                headers[0] || "each industry"
-              }?`,
-            },
-          ];
-          setSuggestedQuestions(suggestions);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          setSuggestedQuestions(data.questions);
         } catch (error) {
           console.error("Failed to process CSV file:", error);
         } finally {
