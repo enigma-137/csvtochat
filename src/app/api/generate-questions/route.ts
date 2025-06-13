@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       schema: outputSchema,
       prompt: `Generate 5 insightful questions that can be asked to analyze a CSV file with the following columns: ${columns.join(
         ", "
-      )}. Focus on questions that would reveal trends, comparisons,  or insights from the data. Provide the questions in the format: {id: string, text: string}.`,
+      )}. Focus on questions that would reveal trends, comparisons,  or insights from the data. Do not include phrases like "in the dataset", "from the data", or "in the CSV file". Provide the questions in the format: {id: string, text: string}.`,
     });
 
     return NextResponse.json(

@@ -8,6 +8,7 @@ import { ChatInput } from "@/components/chat-input";
 import { UploadArea } from "@/components/upload-area";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 import { extractCsvData } from "@/lib/csvUtils";
+import { HeroSection } from "@/components/hero-section";
 
 export interface SuggestedQuestion {
   id: string;
@@ -33,50 +34,42 @@ export default function CSVToChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file && file.type === "text/csv") {
-        setUploadedFile(file);
-        setIsProcessing(true);
+  const handleFileUpload = useCallback(async (file: File | null) => {
+    if (file && file.type === "text/csv") {
+      setUploadedFile(file);
+      setIsProcessing(true);
 
-        try {
-          const { headers, sampleRows } = await extractCsvData(file);
-          setCsvColumns(headers);
+      try {
+        const { headers, sampleRows } = await extractCsvData(file);
+        setCsvColumns(headers);
 
-          const response = await fetch("/api/generate-questions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ columns: headers }),
-          });
+        const response = await fetch("/api/generate-questions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ columns: headers }),
+        });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          setSuggestedQuestions(data.questions);
-        } catch (error) {
-          console.error("Failed to process CSV file:", error);
-        } finally {
-          setIsProcessing(false);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+        setSuggestedQuestions(data.questions);
+      } catch (error) {
+        console.error("Failed to process CSV file:", error);
+      } finally {
+        setIsProcessing(false);
       }
-    },
-    []
-  );
+    }
+  }, []);
 
   const removeFile = () => {
     setUploadedFile(null);
     setCsvColumns([]);
     setSuggestedQuestions([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   const handleSuggestionClick = (question: string) => {
@@ -156,19 +149,14 @@ Technology remains the fastest-growing sector, driven by increased investment in
         <Header onNewChat={startNewChat} />
 
         <div className="flex flex-col items-center px-6">
-          <UploadArea
-            onFileSelect={() => fileInputRef.current?.click()}
-            hasFile={!!uploadedFile}
-          />
+          <div className="flex flex-col items-center pt-16 pb-8">
+            <HeroSection />
 
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
+            <UploadArea
+              onFileChange={handleFileUpload}
+              uploadedFile={uploadedFile}
+            />
+          </div>
 
           {/* Large Input Area */}
           {uploadedFile && (

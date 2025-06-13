@@ -1,25 +1,50 @@
 "use client";
+import Dropzone from "react-dropzone";
+import React from "react";
+import { HeroSection } from "./hero-section";
 
 interface UploadAreaProps {
-  onFileSelect: () => void;
-  hasFile: boolean;
+  onFileChange: (file: File | null) => void;
+  uploadedFile: File | null;
 }
 
-export function UploadArea({ onFileSelect, hasFile }: UploadAreaProps) {
-  return (
-    <div className="flex flex-col items-center pt-16 pb-8">
-      <img src="/logo.svg" className="size-[42px]  mb-8" />
-      {/* Title */}
-      <h1 className="text-[28px] font-medium text-slate-900 text-center mb-12 leading-tight max-w-[277px]">
-        What do you want to analyze?
-      </h1>
+export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
+  if (uploadedFile) return <></>;
 
-      {!hasFile && (
-        <button
-          onClick={onFileSelect}
+  return (
+    <Dropzone
+      multiple={false}
+      accept={{
+        // accept csv
+        "text/csv": [".csv"],
+      }}
+      onDrop={(acceptedFiles) => {
+        const file = acceptedFiles[0];
+
+        if (!file) {
+          // TODO if no file meaning user tried to upload a file that is not csv!
+          return;
+        }
+
+        if (file.size > 15 * 1024 * 1024) {
+          // 10MB in bytes
+          console.log({
+            title: "📁 File Too Large",
+            description: "⚠️ File size must be less than 15MB",
+          });
+          return;
+        }
+        onFileChange(file);
+      }}
+    >
+      {({ getRootProps, getInputProps, isDragAccept }) => (
+        <div
           className="w-full max-w-sm h-40 flex flex-col justify-between overflow-hidden rounded-lg bg-white border border-[#cad5e2] border-dashed p-4  cursor-pointer"
           style={{ boxShadow: "0px 1px 7px -4px rgba(0,0,0,0.25)" }}
+          {...getRootProps()}
         >
+          <input required={!uploadedFile} {...getInputProps()} />
+
           <p className="text-base text-left text-[#90a1b9]">
             Upload your CSV first, then ask a question
           </p>
@@ -40,8 +65,8 @@ export function UploadArea({ onFileSelect, hasFile }: UploadAreaProps) {
               </div>
             </div>
           </div>
-        </button>
+        </div>
       )}
-    </div>
+    </Dropzone>
   );
 }
