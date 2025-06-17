@@ -7,9 +7,10 @@ import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
 import { CodeRender } from "./code-render";
-import { type Message as AIsdkMessage } from "ai";
+import { type UIMessage } from "ai";
+import { useRouter } from "next/navigation";
 
-export type Message = AIsdkMessage & {
+export type Message = UIMessage & {
   isThinking?: boolean;
   isUser?: boolean;
   toolCall?: {
@@ -25,8 +26,8 @@ export type Message = AIsdkMessage & {
 interface ChatScreenProps {
   initialMessage?: string;
   uploadedFile: File | null;
-  onRemoveFile: () => void;
-  onNewChat: () => void;
+  id?: string;
+  initialMessages?: Message[];
 }
 
 export function extractCodeFromText(text: string) {
@@ -38,10 +39,17 @@ export function extractCodeFromText(text: string) {
 export function ChatScreen({
   initialMessage,
   uploadedFile,
-  onRemoveFile,
-  onNewChat,
+  id,
+  initialMessages,
 }: ChatScreenProps) {
-  const { messages, setMessages, append } = useChat({
+  const router = useRouter();
+  const { messages, setMessages, append, data } = useChat({
+    id, // use the provided chat ID
+    initialMessages: initialMessages as UIMessage[], // initial messages if provided
+    sendExtraMessageFields: true, // send id and createdAt for each message
+    experimental_prepareRequestBody({ messages, id }) {
+      return { message: messages[messages.length - 1].content, id };
+    },
     // Fake tool call
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
@@ -117,9 +125,19 @@ export function ChatScreen({
 
   const [inputValue, setInputValue] = useState("");
 
+  // Define onRemoveFile and onNewChat inside the Client Component
+  const handleRemoveFile = () => {
+    // TODO: Implement file removal logic if needed
+    console.log("File removed");
+  };
+
+  const handleNewChat = () => {
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header onNewChat={onNewChat} />
+      <Header onNewChat={handleNewChat} />
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -223,20 +241,18 @@ export function ChatScreen({
         })}
       </div>
 
-      {/* Input */}
       <ChatInput
         value={inputValue}
-        onChange={setInputValue}
-        onSend={() => {
-          // add user message to the chat
-          append({
+        onChange={(value) => setInputValue(value)}
+        onSend={async () => {
+          await append({
             role: "user",
             content: inputValue,
           });
           setInputValue("");
         }}
         uploadedFile={uploadedFile}
-        onRemoveFile={onRemoveFile}
+        onRemoveFile={handleRemoveFile}
       />
     </div>
   );
