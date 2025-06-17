@@ -31,6 +31,7 @@ export function CodeRender({
           border: "1px solid " + (theme === "dark" ? "#333333" : "#e0e0e0"),
         }}
         wrapLongLines
+        wrapLines
       >
         {code}
       </SyntaxHighlighter>
