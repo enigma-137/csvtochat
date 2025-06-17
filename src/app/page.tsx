@@ -172,7 +172,7 @@ Technology remains the fastest-growing sector, driven by increased investment in
 
           {/* Processing State */}
           {isProcessing && (
-            <div className="w-full max-w-sm mt-8 md:max-w-2xl">
+            <div className="w-full max-w-sm my-8 md:max-w-2xl">
               <p className="text-slate-500 text-sm mb-4 animate-pulse">
                 <span className="font-medium">Generating suggestions</span>{" "}
                 <span className="text-slate-400">...</span>
@@ -189,7 +189,7 @@ Technology remains the fastest-growing sector, driven by increased investment in
 
           {/* Suggestions */}
           {suggestedQuestions.length > 0 && !isProcessing && (
-            <div className="w-full max-w-sm mt-8 md:max-w-2xl">
+            <div className="w-full max-w-sm my-8 md:max-w-2xl">
               <p className="text-slate-500 text-sm mb-4">
                 <span className="font-medium">Suggestions</span>{" "}
                 <span className="text-slate-400">
