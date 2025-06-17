@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CSVToChat",
+  title: "CSV2Chat",
   description: "Talk with your CSV with Together.ai",
   openGraph: {
     images: ["https://csvtochat.com/og.jpg"],
