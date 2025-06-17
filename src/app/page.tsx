@@ -102,7 +102,9 @@ export default function CSVToChat() {
             <ChatInput
               value={inputValue}
               onChange={setInputValue}
-              onSend={handleSendMessage}
+              onSend={() => {
+                handleSendMessage(inputValue);
+              }}
               uploadedFile={uploadedFile}
               onRemoveFile={removeFile}
               multiline={true}
@@ -157,7 +159,6 @@ export default function CSVToChat() {
   return (
     <ChatScreen
       initialMessage={initialMessage}
-      onSendMessage={handleSendMessage}
       uploadedFile={uploadedFile}
       onRemoveFile={removeFile}
       onNewChat={startNewChat}

@@ -4,32 +4,82 @@ import { useChat } from "@ai-sdk/react";
 import React, { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { ChatInput } from "@/components/chat-input";
+import { MemoizedMarkdown } from "./MemoizedMarkdown";
+import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
 
 export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   isThinking?: boolean;
+  isUser: boolean;
+  toolCall?: {
+    toolInvocation: {
+      toolName: string;
+      args: string;
+      state: string;
+    };
+  };
 }
 
 interface ChatScreenProps {
   initialMessage?: string;
-  onSendMessage: (messageText?: string) => Promise<void>;
   uploadedFile: File | null;
   onRemoveFile: () => void;
   onNewChat: () => void;
 }
 
+export function extractCodeFromText(text: string) {
+  const codeRegex = /```python\s*([\s\S]*?)\s*```/g;
+  const match = codeRegex.exec(text);
+  return match ? match[1] : null;
+}
+
 export function ChatScreen({
   initialMessage,
-  onSendMessage,
   uploadedFile,
   onRemoveFile,
   onNewChat,
 }: ChatScreenProps) {
-  const { messages, input, handleInputChange, handleSubmit, append } = useChat(
-    {}
-  );
+  const { messages, setMessages, append } = useChat({
+    // Fake tool call
+    onFinish: async (message) => {
+      const code = extractCodeFromText(message.content);
+
+      console.log("code", code);
+
+      if (code) {
+        const response = await fetch("/api/coding", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code }),
+        });
+
+        const result = await response.json();
+
+        // add tool call result to the last message
+        message.parts?.push({
+          type: "tool-invocation",
+          toolInvocation: {
+            toolCallId: message.id,
+            toolName: "runCode",
+            args: code,
+            state: "result",
+            result: result,
+          },
+        });
+
+        console.log("/api/coding result:", result);
+
+        setMessages((prev) => {
+          // replace last message with the new message
+          return [...prev.slice(0, -1), message];
+        });
+      }
+    },
+  });
 
   useEffect(() => {
     if (initialMessage && messages.length === 0) {
@@ -38,7 +88,7 @@ export function ChatScreen({
         content: initialMessage,
       });
     }
-  }, [initialMessage, onSendMessage]);
+  }, [initialMessage]);
 
   const [inputValue, setInputValue] = useState("");
 
@@ -48,79 +98,113 @@ export function ChatScreen({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {messages.map((message) => (
-          <div key={message.id}>
-            {message.role === "user" ? (
-              <div className="flex justify-end">
-                <div className="bg-slate-200 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
-                  <p className="text-slate-800 text-sm">{message.content}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="space-y-4">
-                  <div className="text-slate-800 text-sm leading-relaxed">
-                    {message.content
-                      .split("\n\n")
-                      .map((paragraph: string, index: number) => {
-                        if (paragraph.startsWith("```python")) {
-                          const code = paragraph
-                            .replace("```python\n", "")
-                            .replace("\n```", "");
-                          return (
-                            <div key={index} className="my-4">
-                              <div className="bg-slate-100 rounded-lg overflow-hidden">
-                                <div className="bg-slate-200 px-3 py-2 text-xs text-slate-600 border-b">
-                                  barGraph.py
-                                </div>
-                                <pre className="p-3 text-xs text-slate-700 overflow-x-auto">
-                                  <code>{code}</code>
-                                </pre>
-                              </div>
-                            </div>
-                          );
-                        }
+        {messages.map((message) => {
+          const toolCall = message.parts.find(
+            (part) => part.type === "tool-invocation"
+          );
 
-                        if (paragraph.startsWith("•")) {
-                          const bulletPoints = paragraph.split("\n");
-                          return (
-                            <div key={index} className="space-y-2 my-4">
-                              {bulletPoints.map(
-                                (point: string, pointIndex: number) => (
-                                  <div
-                                    key={pointIndex}
-                                    className="flex items-start gap-2"
-                                  >
-                                    <div className="w-1 h-1 bg-slate-400 rounded-full mt-2 flex-shrink-0"></div>
-                                    <span className="text-sm">
-                                      {point.replace("• ", "")}
-                                    </span>
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          );
-                        }
+          const codeResults =
+            toolCall?.toolInvocation.toolName === "runCode"
+              ? ((toolCall?.toolInvocation as any)
+                  .result as TogetherCodeInterpreterResponseData)
+              : undefined;
 
-                        return (
-                          <p key={index} className="mb-4 last:mb-0">
-                            {paragraph}
-                          </p>
-                        );
-                      })}
+          const stdOut = codeResults?.outputs.find(
+            (result) => result.type === "stdout"
+          );
+
+          const errorCode = codeResults?.outputs.find(
+            (result) => result.type === "error"
+          );
+
+          const imagePngBase64 = codeResults?.outputs.find(
+            (result) => result.type === "display_data"
+          );
+
+          return (
+            <div key={message.id}>
+              {message.role === "user" ? (
+                <div className="flex justify-end">
+                  <div className="bg-slate-200 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
+                    <p className="text-slate-800 text-sm">{message.content}</p>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              ) : (
+                <div className="space-y-3">
+                  <div className="space-y-4">
+                    <div className="text-slate-800 text-sm">
+                      <MemoizedMarkdown
+                        id={message.id}
+                        content={message.content}
+                      />
+                    </div>
+                    <div className="text-slate-800 text-sm leading-relaxed">
+                      {stdOut && (
+                        <div className="mt-4">
+                          <h3 className="text-slate-800 text-sm leading-relaxed font-bold">
+                            Terminal Output:
+                          </h3>
+                          <MemoizedMarkdown
+                            content={`
+\`\`\`bash
+${stdOut.data}
+\`\`\`
+                              `}
+                            id="fake-terminal-output"
+                          />
+                        </div>
+                      )}
+
+                      {errorCode && (
+                        <div className="mt-4">
+                          <h3 className="text-slate-800 text-sm leading-relaxed font-bold">
+                            Error:
+                          </h3>
+                          <MemoizedMarkdown
+                            content={`
+\`\`\`bash
+${errorCode.data}
+\`\`\`
+                              `}
+                            id="fake-terminal-output"
+                          />
+                        </div>
+                      )}
+
+                      {imagePngBase64 && (
+                        <div className="mt-4">
+                          <h3 className="text-slate-800 text-sm leading-relaxed font-bold">
+                            Image:
+                          </h3>
+                          <img
+                            src={`data:image/png;base64,${
+                              (imagePngBase64.data as any)["image/png"]
+                            }`}
+                            alt="image"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Input */}
       <ChatInput
         value={inputValue}
         onChange={setInputValue}
-        onSend={onSendMessage}
+        onSend={() => {
+          // add user message to the chat
+          append({
+            role: "user",
+            content: inputValue,
+          });
+          setInputValue("");
+        }}
         uploadedFile={uploadedFile}
         onRemoveFile={onRemoveFile}
       />

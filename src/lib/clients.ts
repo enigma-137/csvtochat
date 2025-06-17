@@ -8,3 +8,5 @@ export const togetherClient = new Together({
 export const togetherAISDKClient = createTogetherAI({
   apiKey: process.env.TOGETHER_API_KEY,
 });
+
+export const codeInterpreter = togetherClient.codeInterpreter;
