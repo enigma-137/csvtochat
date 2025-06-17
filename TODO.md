@@ -1,7 +1,6 @@
 # Steps to MVP
 
 1. clean up homepage steps:
-   - user drops/uploads a file (neeed dropzone added)
    - user can write a prompt or click one of the provided suggestions (with load more?)
    - user clicks a suggestion or writes a prompt and clicks enter
 2. still on homepage but different we do background processing:

@@ -31,6 +31,12 @@ export function ChatInput({
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const pastedText = e.clipboardData.getData("text");
+    onChange(pastedText.trim());
+    e.preventDefault(); // Prevent default paste behavior
+  };
+
   if (multiline) {
     return (
       <div className="w-full max-w-sm md:max-w-2xl">
@@ -41,6 +47,7 @@ export function ChatInput({
             placeholder={placeholder}
             className="w-full h-32 resize-none text-base placeholder:text-slate-400 focus:outline-none "
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
           />
 
           <div className="flex flex-row justify-between">
@@ -86,6 +93,7 @@ export function ChatInput({
           placeholder={placeholder}
           className="w-full pr-12 border-slate-200 h-12"
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
         />
         {uploadedFile && (
           <div className="absolute -top-10 left-3 flex items-center gap-2 bg-slate-100 rounded px-2 py-1 text-xs">
