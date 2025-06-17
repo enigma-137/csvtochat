@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "CSVToChat",
   description: "Talk with your CSV with Together.ai",
+  openGraph: {
+    images: ["https://csvtochat.com/og.jpg"],
+  },
 };
 
 export default function RootLayout({
