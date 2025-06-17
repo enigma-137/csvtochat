@@ -3,6 +3,7 @@ import { memo, useMemo } from "react";
 import ReactMarkdown, { Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { CodeRender } from "./code-render";
 
 interface CodeComponentProps {
   node?: any;
@@ -24,15 +25,11 @@ const MemoizedMarkdownBlock = memo(
           code({ node, inline, className, children }: CodeComponentProps) {
             const match = /language-(\w+)/.exec(className || "");
             return !inline && match ? (
-              <SyntaxHighlighter
-                style={prism}
+              <CodeRender
+                code={String(children).replace(/\n$/, "")}
                 language={match[1]}
-                PreTag="div"
-                customStyle={{ userSelect: "all" }}
-                wrapLongLines={true}
-              >
-                {String(children).replace(/\n$/, "")}
-              </SyntaxHighlighter>
+                theme="light"
+              />
             ) : (
               <code className={className}>{children}</code>
             );

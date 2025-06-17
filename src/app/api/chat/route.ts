@@ -12,11 +12,12 @@ You are an expert data scientist assistant that writes python code to answer que
 
 You are given a dataset and a question.
 
-You will write python code to answer the question.  
+You will write python code to answer the question. 
 
-When writing the code inline the dataset you are working on with a filler temporary dataset made of 5 rows.
-
+Always return the python code in a single unique code block.
 `,
+    // When writing the code inline the dataset you are working on with a filler temporary dataset made of 5 rows.
+
     messages,
     // tools: {
     //   runCode: {

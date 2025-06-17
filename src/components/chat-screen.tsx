@@ -6,6 +6,7 @@ import { Header } from "@/components/header";
 import { ChatInput } from "@/components/chat-input";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
+import { CodeRender } from "./code-render";
 
 export interface Message {
   id: string;
@@ -132,7 +133,7 @@ export function ChatScreen({
               ) : (
                 <div className="space-y-3">
                   <div className="space-y-4">
-                    <div className="text-slate-800 text-sm">
+                    <div className="text-slate-800 text-sm prose">
                       <MemoizedMarkdown
                         id={message.id}
                         content={message.content}
@@ -140,47 +141,40 @@ export function ChatScreen({
                     </div>
                     <div className="text-slate-800 text-sm leading-relaxed">
                       {stdOut && (
-                        <div className="mt-4">
-                          <h3 className="text-slate-800 text-sm leading-relaxed font-bold">
-                            Terminal Output:
+                        <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e]">
+                          <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
+                            Bash Output (stdout):
                           </h3>
-                          <MemoizedMarkdown
-                            content={`
-\`\`\`bash
-${stdOut.data}
-\`\`\`
-                              `}
-                            id="fake-terminal-output"
+                          <CodeRender
+                            code={stdOut.data}
+                            language="bash"
+                            theme="dark"
                           />
                         </div>
                       )}
 
                       {errorCode && (
-                        <div className="mt-4">
-                          <h3 className="text-slate-800 text-sm leading-relaxed font-bold">
+                        <div className="mt-4 rounded-lg overflow-hidden border border-red-700 bg-[#2d1e1e]">
+                          <h3 className="text-red-300 text-xs font-semibold px-4 py-2 border-b border-red-700">
                             Error:
                           </h3>
-                          <MemoizedMarkdown
-                            content={`
-\`\`\`bash
-${errorCode.data}
-\`\`\`
-                              `}
-                            id="fake-terminal-output"
+                          <CodeRender
+                            code={errorCode.data}
+                            language="bash"
+                            theme="dark"
                           />
                         </div>
                       )}
 
                       {imagePngBase64 && (
-                        <div className="mt-4">
-                          <h3 className="text-slate-800 text-sm leading-relaxed font-bold">
-                            Image:
-                          </h3>
+                        <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-white p-4 flex justify-center items-center">
+                          <h3 className="sr-only">Image:</h3>
                           <img
                             src={`data:image/png;base64,${
                               (imagePngBase64.data as any)["image/png"]
                             }`}
                             alt="image"
+                            className="max-w-full h-auto"
                           />
                         </div>
                       )}
