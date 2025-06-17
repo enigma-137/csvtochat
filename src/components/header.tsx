@@ -16,11 +16,14 @@ export function Header({ onNewChat }: HeaderProps) {
           <img src="/github.svg" className="size-9" />
         </a>
 
-        <img src="/history.svg" className="size-9" />
+        <Button variant="ghost" size="sm" className="cursor-pointer !p-1">
+          <img src="/history.svg" className="size-9" />
+        </Button>
+
         <Button
           variant="ghost"
           size="sm"
-          className="text-slate-400 gap-1 px-2"
+          className="text-slate-400 gap-1 px-2 cursor-pointer"
           onClick={onNewChat}
         >
           <img src="/new.svg" className="size-9" />

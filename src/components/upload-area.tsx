@@ -46,7 +46,11 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
             <input required={!uploadedFile} {...getInputProps()} />
 
             <div
-              className="w-full max-w-sm h-40 flex flex-col justify-between overflow-hidden rounded-lg bg-white border border-[#cad5e2] border-dashed p-4 cursor-pointer"
+              className={`w-full max-w-sm h-40 flex flex-col justify-between overflow-hidden rounded-lg border border-dashed p-4 cursor-pointer transition-all duration-300 ease-in-out ${
+                isDragAccept
+                  ? "border-blue-700 ring-8 ring-blue-300 bg-blue-100"
+                  : "border-[#cad5e2] bg-white"
+              }`}
               style={{ boxShadow: "0px 1px 7px -4px rgba(0,0,0,0.25)" }}
             >
               <p className="text-base text-left text-[#90a1b9]">
@@ -58,11 +62,18 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
                   or drag and drop here
                 </p>
                 <div
-                  className="w-full h-[45px] flex items-center justify-center rounded-md bg-slate-50 border-[0.7px] border-[#cad5e2]"
+                  className={`w-full h-[45px] flex items-center justify-center rounded-md border-[0.7px] border-[#cad5e2] transition-all duration-300 ease-in-out ${
+                    isDragAccept ? "bg-blue-200" : "bg-slate-50"
+                  }`}
                   style={{ boxShadow: "0px 1px 7px -4px rgba(0,0,0,0.25)" }}
                 >
                   <div className="flex justify-center items-center gap-2">
-                    <img src="/upload.svg" className="size-5" />
+                    <img
+                      src="/upload.svg"
+                      className={`size-5 transition-transform duration-300 ease-in-out ${
+                        isDragAccept ? "scale-125" : ""
+                      }`}
+                    />
                     <p className="flex-grow-0 flex-shrink-0 text-base font-medium text-left text-[#0f172b]">
                       Upload CSV
                     </p>

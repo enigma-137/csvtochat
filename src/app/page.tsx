@@ -138,7 +138,7 @@ Technology remains the fastest-growing sector, driven by increased investment in
   };
 
   const startNewChat = () => {
-    setMessages([]);
+    removeFile();
     setCurrentScreen("upload");
     setInputValue("");
   };
