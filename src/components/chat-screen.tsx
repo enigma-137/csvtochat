@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import React, { useEffect, useState } from "react";
 import { Header } from "@/components/header";
-import { ChatInput } from "@/components/chat-input";
+import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
 import { CodeRender } from "./code-render";

@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState, useCallback } from "react";
 import { Header } from "@/components/header";
-import { ChatInput } from "@/components/chat-input";
+import { HomeInput } from "@/components/HomeInput";
 import { UploadArea } from "@/components/upload-area";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 import { extractCsvData } from "@/lib/csvUtils";
@@ -99,7 +99,7 @@ export default function CSVToChat() {
 
           {/* Large Input Area */}
           {uploadedFile && (
-            <ChatInput
+            <HomeInput
               value={inputValue}
               onChange={setInputValue}
               onSend={() => {
@@ -107,7 +107,6 @@ export default function CSVToChat() {
               }}
               uploadedFile={uploadedFile}
               onRemoveFile={removeFile}
-              multiline={true}
             />
           )}
 
