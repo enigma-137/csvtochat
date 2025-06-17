@@ -9,7 +9,7 @@ import { UploadArea } from "@/components/upload-area";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 import { extractCsvData } from "@/lib/csvUtils";
 import { HeroSection } from "@/components/hero-section";
-import { ChatScreen, Message } from "@/components/chat-screen";
+import { ChatScreen } from "@/components/chat-screen";
 
 export interface SuggestedQuestion {
   id: string;

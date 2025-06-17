@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useChat } from "@ai-sdk/react";
+import React, { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { ChatInput } from "@/components/chat-input";
 
@@ -26,13 +27,19 @@ export function ChatScreen({
   onRemoveFile,
   onNewChat,
 }: ChatScreenProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "initial",
-      role: "user",
-      content: initialMessage || "",
-    },
-  ]);
+  const { messages, input, handleInputChange, handleSubmit, append } = useChat(
+    {}
+  );
+
+  useEffect(() => {
+    if (initialMessage && messages.length === 0) {
+      append({
+        role: "user",
+        content: initialMessage,
+      });
+    }
+  }, [initialMessage, onSendMessage]);
+
   const [inputValue, setInputValue] = useState("");
 
   return (
@@ -41,7 +48,7 @@ export function ChatScreen({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {messages.map((message: Message) => (
+        {messages.map((message) => (
           <div key={message.id}>
             {message.role === "user" ? (
               <div className="flex justify-end">
@@ -51,66 +58,58 @@ export function ChatScreen({
               </div>
             ) : (
               <div className="space-y-3">
-                {message.isThinking && (
-                  <div className="flex items-center gap-2 text-slate-500 text-sm">
-                    <div className="animate-spin w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full"></div>
-                    Thinking...
-                  </div>
-                )}
-                {!message.isThinking && (
-                  <div className="space-y-4">
-                    <div className="text-slate-800 text-sm leading-relaxed">
-                      {message.content
-                        .split("\n\n")
-                        .map((paragraph: string, index: number) => {
-                          if (paragraph.startsWith("```python")) {
-                            const code = paragraph
-                              .replace("```python\n", "")
-                              .replace("\n```", "");
-                            return (
-                              <div key={index} className="my-4">
-                                <div className="bg-slate-100 rounded-lg overflow-hidden">
-                                  <div className="bg-slate-200 px-3 py-2 text-xs text-slate-600 border-b">
-                                    barGraph.py
-                                  </div>
-                                  <pre className="p-3 text-xs text-slate-700 overflow-x-auto">
-                                    <code>{code}</code>
-                                  </pre>
-                                </div>
-                              </div>
-                            );
-                          }
-
-                          if (paragraph.startsWith("•")) {
-                            const bulletPoints = paragraph.split("\n");
-                            return (
-                              <div key={index} className="space-y-2 my-4">
-                                {bulletPoints.map(
-                                  (point: string, pointIndex: number) => (
-                                    <div
-                                      key={pointIndex}
-                                      className="flex items-start gap-2"
-                                    >
-                                      <div className="w-1 h-1 bg-slate-400 rounded-full mt-2 flex-shrink-0"></div>
-                                      <span className="text-sm">
-                                        {point.replace("• ", "")}
-                                      </span>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            );
-                          }
-
+                <div className="space-y-4">
+                  <div className="text-slate-800 text-sm leading-relaxed">
+                    {message.content
+                      .split("\n\n")
+                      .map((paragraph: string, index: number) => {
+                        if (paragraph.startsWith("```python")) {
+                          const code = paragraph
+                            .replace("```python\n", "")
+                            .replace("\n```", "");
                           return (
-                            <p key={index} className="mb-4 last:mb-0">
-                              {paragraph}
-                            </p>
+                            <div key={index} className="my-4">
+                              <div className="bg-slate-100 rounded-lg overflow-hidden">
+                                <div className="bg-slate-200 px-3 py-2 text-xs text-slate-600 border-b">
+                                  barGraph.py
+                                </div>
+                                <pre className="p-3 text-xs text-slate-700 overflow-x-auto">
+                                  <code>{code}</code>
+                                </pre>
+                              </div>
+                            </div>
                           );
-                        })}
-                    </div>
+                        }
+
+                        if (paragraph.startsWith("•")) {
+                          const bulletPoints = paragraph.split("\n");
+                          return (
+                            <div key={index} className="space-y-2 my-4">
+                              {bulletPoints.map(
+                                (point: string, pointIndex: number) => (
+                                  <div
+                                    key={pointIndex}
+                                    className="flex items-start gap-2"
+                                  >
+                                    <div className="w-1 h-1 bg-slate-400 rounded-full mt-2 flex-shrink-0"></div>
+                                    <span className="text-sm">
+                                      {point.replace("• ", "")}
+                                    </span>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <p key={index} className="mb-4 last:mb-0">
+                            {paragraph}
+                          </p>
+                        );
+                      })}
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>

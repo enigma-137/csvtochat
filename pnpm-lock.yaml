@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@ai-sdk/react':
+        specifier: ^1.2.12
+        version: 1.2.12(react@19.1.0)(zod@3.25.64)
       '@ai-sdk/togetherai':
         specifier: ^0.2.14
         version: 0.2.14(zod@3.25.64)
