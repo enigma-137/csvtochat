@@ -80,7 +80,7 @@ export function ChatScreen({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code }),
+          body: JSON.stringify({ code, id }),
         });
 
         const result = await response.json();
