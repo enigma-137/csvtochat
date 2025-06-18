@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { ImageFigure } from "./chatTools/ImageFigure";
 import { TerminalOutput } from "./chatTools/TerminalOutput";
 import { ErrorOutput } from "./chatTools/ErrorOutput";
+import { useAutoScroll } from "../hooks/useAutoScroll";
+import { useDraftedInput } from "../hooks/useDraftedInput";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -96,6 +98,7 @@ export function ChatScreen({
           ];
         });
 
+        setIsCodeRunning(true);
         const response = await fetch("/api/coding", {
           method: "POST",
           headers: {
@@ -105,8 +108,6 @@ export function ChatScreen({
         });
 
         const result = await response.json();
-
-        console.log("/api/coding result:", result);
 
         // Check for error in outputs
         const errorOutput = Array.isArray(result.outputs)
@@ -172,6 +173,7 @@ export function ChatScreen({
             return msg;
           });
         });
+        setIsCodeRunning(false);
       }
     },
   });
@@ -190,28 +192,10 @@ export function ChatScreen({
     }
   }, []);
 
-  const [inputValue, setInputValue] = useState("");
-
-  // Load draft from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const draft = localStorage.getItem("chatInputDraft");
-      if (draft) {
-        setInputValue(draft);
-      }
-    }
-  }, []);
-
-  // Save inputValue to localStorage on change
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (inputValue) {
-        localStorage.setItem("chatInputDraft", inputValue);
-      } else {
-        localStorage.removeItem("chatInputDraft");
-      }
-    }
-  }, [inputValue]);
+  // Use a unique key for each chat window's draft input
+  const [inputValue, setInputValue, clearInputValue] = useDraftedInput(
+    id ? `chatInputDraft-${id}` : "chatInputDraft"
+  );
 
   // Define onRemoveFile and onNewChat inside the Client Component
   const handleRemoveFile = () => {
@@ -223,12 +207,19 @@ export function ChatScreen({
     router.push("/");
   };
 
+  const [isCodeRunning, setIsCodeRunning] = useState(false);
+  const { messagesContainerRef, messagesEndRef, isUserAtBottom } =
+    useAutoScroll({ status, isCodeRunning });
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header onNewChat={handleNewChat} />
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 mx-auto max-w-[700px]">
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-6 mx-auto max-w-[700px]"
+        ref={messagesContainerRef}
+      >
         {messages.map((message, messageIdx) => {
           const currentMessage = message as Message; // Cast to our custom Message interface
 
@@ -320,6 +311,7 @@ export function ChatScreen({
             </div>
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
 
       <ChatInput
@@ -327,10 +319,7 @@ export function ChatScreen({
         onChange={(value) => setInputValue(value)}
         onSend={async () => {
           // Clear input and localStorage immediately on submit
-          setInputValue("");
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("chatInputDraft");
-          }
+          clearInputValue();
           await append({
             role: "user",
             content: inputValue,
