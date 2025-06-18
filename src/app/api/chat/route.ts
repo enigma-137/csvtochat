@@ -49,10 +49,12 @@ export async function POST(req: Request) {
 
   const messagesToSave: Message[] = [...messagesDb, newUserMessage];
 
-  const coreMessagesForStream = messagesToSave.map((msg) => ({
-    role: msg.role,
-    content: msg.content,
-  }));
+  const coreMessagesForStream = messagesToSave
+    .filter((msg) => msg.role === "user" || msg.role === "assistant")
+    .map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
 
   const stream = streamText({
     model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
@@ -66,7 +68,6 @@ You will write python code to answer the question.
 Always return the python code in a single unique code block.
 
 Python sessions come pre-installed with the following dependencies, any other dependencies can be installed using a !pip install command in the python code.
-
 
 - aiohttp
 - beautifulsoup4

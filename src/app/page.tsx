@@ -68,6 +68,11 @@ export default function CSVToChat() {
     const text = messageText || inputValue.trim();
     if (!text) return;
 
+    // Store the message in localStorage before redirect
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pendingMessage", text);
+    }
+
     const id = await createChat();
     redirect(`/chat/${id}`);
   };

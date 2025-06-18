@@ -24,7 +24,6 @@ export type Message = UIMessage & {
 };
 
 interface ChatScreenProps {
-  initialMessage?: string;
   uploadedFile: File | null;
   id?: string;
   initialMessages?: Message[];
@@ -37,7 +36,6 @@ export function extractCodeFromText(text: string) {
 }
 
 export function ChatScreen({
-  initialMessage,
   uploadedFile,
   id,
   initialMessages,
@@ -114,14 +112,19 @@ export function ChatScreen({
     },
   });
 
+  // On mount, check for pendingMessage in localStorage and append it if present
   useEffect(() => {
-    if (initialMessage && messages.length === 0) {
-      append({
-        role: "user",
-        content: initialMessage,
-      });
+    if (messages.length === 0 && typeof window !== "undefined") {
+      const pending = localStorage.getItem("pendingMessage");
+      if (pending) {
+        append({
+          role: "user",
+          content: pending,
+        });
+        localStorage.removeItem("pendingMessage");
+      }
     }
-  }, [initialMessage]);
+  }, []);
 
   const [inputValue, setInputValue] = useState("");
 
