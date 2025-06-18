@@ -12,7 +12,7 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
   if (uploadedFile) return <></>;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+    <div className="flex items-center justify-center pointer-events-none w-full">
       <Dropzone
         multiple={false}
         accept={{
@@ -46,7 +46,7 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
             <input required={!uploadedFile} {...getInputProps()} />
 
             <div
-              className={`w-full max-w-sm h-40 flex flex-col justify-between overflow-hidden rounded-lg border border-dashed p-4 cursor-pointer transition-all duration-300 ease-in-out ${
+              className={`w-full h-40 flex flex-col justify-between overflow-hidden rounded-lg border border-dashed p-4 cursor-pointer transition-all duration-300 ease-in-out ${
                 isDragAccept
                   ? "border-blue-700 ring-8 ring-blue-300 bg-blue-100"
                   : "border-[#cad5e2] bg-white"
