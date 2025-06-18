@@ -30,6 +30,7 @@ export function CodeRender({
           color: theme === "dark" ? "#d4d4d4" : "#333333", // VS Code like text color
           border: "1px solid " + (theme === "dark" ? "#333333" : "#e0e0e0"),
           overflowX: "auto",
+          fontSize: "12px",
         }}
         showLineNumbers={language === "python"}
         lineProps={{ style: { flexWrap: "wrap" } }}
