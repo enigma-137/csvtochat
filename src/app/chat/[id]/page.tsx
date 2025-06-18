@@ -2,8 +2,13 @@ import { loadChat } from "@/lib/chat-store";
 import { ChatScreen } from "@/components/chat-screen";
 import { Message } from "@/components/chat-screen";
 
-export default async function Page(props: { params: { id: string } }) {
-  const id = props.params.id; // get the chat ID from the URL
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const messages = await loadChat(id);
 
   // Ensure initialMessages has all required properties from UIMessage

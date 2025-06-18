@@ -12,10 +12,7 @@ export async function createChat(): Promise<string> {
 }
 
 export async function loadChat(id: string): Promise<Message[]> {
-  const chatData = await redis.get(`${CHAT_KEY_PREFIX}${id}`);
-  return typeof chatData === "string" && chatData.length > 0
-    ? JSON.parse(chatData)
-    : [];
+  return (await redis.get(`${CHAT_KEY_PREFIX}${id}`)) || [];
 }
 
 export async function saveChat({
