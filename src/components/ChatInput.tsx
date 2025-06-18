@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 export function ChatInput({
@@ -31,10 +32,17 @@ export function ChatInput({
     e.preventDefault(); // Prevent default paste behavior
   };
 
+  // Autofocus logic
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
   return (
     <div className="w-full md:max-w-2xl mx-auto">
       <div className="relative border border-slate-200 rounded-xl p-3 md:mb-4">
         <textarea
+          ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
