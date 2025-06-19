@@ -7,9 +7,15 @@ import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
 import { CodeRender } from "./code-render";
-import { type Message as AIsdkMessage } from "ai";
+import { type UIMessage } from "ai";
+import { useRouter } from "next/navigation";
+import { ImageFigure } from "./chatTools/ImageFigure";
+import { TerminalOutput } from "./chatTools/TerminalOutput";
+import { ErrorOutput } from "./chatTools/ErrorOutput";
+import { useAutoScroll } from "../hooks/useAutoScroll";
+import { useDraftedInput } from "../hooks/useDraftedInput";
 
-export type Message = AIsdkMessage & {
+export type Message = UIMessage & {
   isThinking?: boolean;
   isUser?: boolean;
   toolCall?: {
@@ -20,13 +26,14 @@ export type Message = AIsdkMessage & {
       result?: any;
     };
   };
+  isCustomError?: boolean;
+  _autoErrorResolved?: boolean;
 };
 
 interface ChatScreenProps {
-  initialMessage?: string;
   uploadedFile: File | null;
-  onRemoveFile: () => void;
-  onNewChat: () => void;
+  id?: string;
+  initialMessages?: Message[];
 }
 
 export function extractCodeFromText(text: string) {
@@ -35,13 +42,35 @@ export function extractCodeFromText(text: string) {
   return match ? match[1] : null;
 }
 
+// Thinking indicator component
+function ThinkingIndicator() {
+  return (
+    <div className="flex items-start justify-start my-4">
+      <img
+        src="/loading.svg"
+        alt="Thinking..."
+        className="size-4 animate-spin"
+      />
+      <span className="ml-2 text-[#006597] font-semibold text-sm">
+        Thinking <span className="animate-pulse">...</span>
+      </span>
+    </div>
+  );
+}
+
 export function ChatScreen({
-  initialMessage,
   uploadedFile,
-  onRemoveFile,
-  onNewChat,
+  id,
+  initialMessages,
 }: ChatScreenProps) {
-  const { messages, setMessages, append } = useChat({
+  const router = useRouter();
+  const { messages, setMessages, append, data, status } = useChat({
+    id, // use the provided chat ID
+    initialMessages: initialMessages as UIMessage[], // initial messages if provided
+    sendExtraMessageFields: true, // send id and createdAt for each message
+    experimental_prepareRequestBody({ messages, id }) {
+      return { message: messages[messages.length - 1].content, id };
+    },
     // Fake tool call
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
@@ -69,17 +98,57 @@ export function ChatScreen({
           ];
         });
 
+        setIsCodeRunning(true);
         const response = await fetch("/api/coding", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code }),
+          body: JSON.stringify({ code, id }),
         });
 
         const result = await response.json();
 
-        console.log("/api/coding result:", result);
+        // Check for error in outputs
+        const errorOutput = Array.isArray(result.outputs)
+          ? result.outputs.find((output: any) => output.type === "error")
+          : undefined;
+        const errorOccurred = Boolean(errorOutput);
+        const errorMessage = errorOutput
+          ? errorOutput.data || "Unknown error"
+          : "";
+
+        if (errorOccurred) {
+          // Display custom assistant message
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: message.id + "_error_notice",
+              role: "assistant",
+              content:
+                "Something went wrong. Please hold tight while we fix things behind the scenes.",
+              isCustomError: true,
+            },
+          ]);
+
+          // Prevent infinite retry: only retry if not already retried for this message
+          if (!(message as Message)._autoErrorResolved) {
+            // Send error back to AI for resolution
+            const errorResolutionPrompt = `The following error occurred when running the code you provided: ${errorMessage}. Please try to fix the code and try again.`;
+            // Mark this message as already retried
+            const retryMessage = {
+              ...(message as Message),
+              _autoErrorResolved: true,
+            };
+            // Append the error resolution prompt as a user message
+            setTimeout(() => {
+              append({
+                role: "user",
+                content: errorResolutionPrompt,
+              });
+            }, 1000); // slight delay for UX
+          }
+        }
 
         // Update the tool call message with the "result" state
         setMessages((prev) => {
@@ -88,7 +157,9 @@ export function ChatScreen({
               return {
                 ...msg,
                 isThinking: false,
-                content: "Code execution complete.", // Or an empty string if content is not needed
+                content: errorOccurred
+                  ? "Code execution failed."
+                  : "Code execution complete.",
                 toolCall: {
                   toolInvocation: {
                     toolName: "runCode",
@@ -102,28 +173,54 @@ export function ChatScreen({
             return msg;
           });
         });
+        setIsCodeRunning(false);
       }
     },
   });
 
+  // On mount, check for pendingMessage in localStorage and append it if present
   useEffect(() => {
-    if (initialMessage && messages.length === 0) {
-      append({
-        role: "user",
-        content: initialMessage,
-      });
+    if (messages.length === 0 && typeof window !== "undefined") {
+      const pending = localStorage.getItem("pendingMessage");
+      if (pending) {
+        append({
+          role: "user",
+          content: pending,
+        });
+        localStorage.removeItem("pendingMessage");
+      }
     }
-  }, [initialMessage]);
+  }, []);
 
-  const [inputValue, setInputValue] = useState("");
+  // Use a unique key for each chat window's draft input
+  const [inputValue, setInputValue, clearInputValue] = useDraftedInput(
+    id ? `chatInputDraft-${id}` : "chatInputDraft"
+  );
+
+  // Define onRemoveFile and onNewChat inside the Client Component
+  const handleRemoveFile = () => {
+    // TODO: Implement file removal logic if needed
+    console.log("File removed");
+  };
+
+  const handleNewChat = () => {
+    router.push("/");
+  };
+
+  const [isCodeRunning, setIsCodeRunning] = useState(false);
+  const { messagesContainerRef, messagesEndRef, isUserAtBottom } =
+    useAutoScroll({ status, isCodeRunning });
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header onNewChat={onNewChat} />
+      <Header onNewChat={handleNewChat} />
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {messages.map((message) => {
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-6 mx-auto max-w-[700px]"
+        ref={messagesContainerRef}
+      >
+        {messages.map((message, messageIdx) => {
           const currentMessage = message as Message; // Cast to our custom Message interface
 
           const codeResults =
@@ -144,8 +241,14 @@ export function ChatScreen({
             (result: any) => result.type === "display_data"
           );
 
+          const isThisLastMessage = messages.length - 1 === messageIdx;
+
           return (
             <div key={currentMessage.id}>
+              {isThisLastMessage && status === "streaming" && (
+                <ThinkingIndicator />
+              )}
+
               {currentMessage.role === "user" ? (
                 <div className="flex justify-end">
                   <div className="bg-slate-200 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
@@ -157,12 +260,26 @@ export function ChatScreen({
               ) : (
                 <div className="space-y-3">
                   <div className="space-y-4">
-                    <div className="text-slate-800 text-sm prose">
-                      <MemoizedMarkdown
-                        id={currentMessage.id}
-                        content={currentMessage.content}
-                      />
-                    </div>
+                    {/* Custom error message styling */}
+                    {currentMessage.isCustomError ? (
+                      <div className="mt-4 rounded-lg overflow-hidden border border-yellow-500 bg-yellow-100 p-4 flex items-center">
+                        <img
+                          src="/loading.svg"
+                          alt="Loading"
+                          className="w-6 h-6 animate-spin"
+                        />
+                        <span className="text-yellow-800 font-semibold ml-2">
+                          {currentMessage.content}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="text-slate-800 text-sm prose">
+                        <MemoizedMarkdown
+                          id={currentMessage.id}
+                          content={currentMessage.content}
+                        />
+                      </div>
+                    )}
                     {currentMessage.isThinking && (
                       <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse">
                         <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
@@ -175,68 +292,41 @@ export function ChatScreen({
                     {currentMessage.toolCall?.toolInvocation.state ===
                       "result" && (
                       <div className="text-slate-800 text-sm leading-relaxed">
-                        {stdOut && (
-                          <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e]">
-                            <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
-                              Bash Output (stdout):
-                            </h3>
-                            <CodeRender
-                              code={stdOut.data}
-                              language="bash"
-                              theme="dark"
-                            />
-                          </div>
-                        )}
+                        {stdOut && <TerminalOutput data={stdOut.data} />}
 
-                        {errorCode && (
-                          <div className="mt-4 rounded-lg overflow-hidden border border-red-700 bg-[#2d1e1e]">
-                            <h3 className="text-red-300 text-xs font-semibold px-4 py-2 border-b border-red-700">
-                              Error:
-                            </h3>
-                            <CodeRender
-                              code={errorCode.data}
-                              language="bash"
-                              theme="dark"
-                            />
-                          </div>
-                        )}
+                        {errorCode && <ErrorOutput data={errorCode.data} />}
 
                         {imagePngBase64 && (
-                          <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-white p-4 flex justify-center items-center">
-                            <h3 className="sr-only">Image:</h3>
-                            <img
-                              src={`data:image/png;base64,${
-                                (imagePngBase64.data as any)["image/png"]
-                              }`}
-                              alt="image"
-                              className="max-w-full h-auto"
-                            />
-                          </div>
+                          <ImageFigure imageData={imagePngBase64.data as any} />
                         )}
                       </div>
                     )}
                   </div>
                 </div>
               )}
+
+              {isThisLastMessage && status === "submitted" && (
+                <ThinkingIndicator />
+              )}
             </div>
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <ChatInput
         value={inputValue}
-        onChange={setInputValue}
-        onSend={() => {
-          // add user message to the chat
-          append({
+        onChange={(value) => setInputValue(value)}
+        onSend={async () => {
+          // Clear input and localStorage immediately on submit
+          clearInputValue();
+          await append({
             role: "user",
             content: inputValue,
           });
-          setInputValue("");
         }}
         uploadedFile={uploadedFile}
-        onRemoveFile={onRemoveFile}
+        onRemoveFile={handleRemoveFile}
       />
     </div>
   );

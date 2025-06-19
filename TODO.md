@@ -1,8 +1,6 @@
 # Steps to MVP
 
-1. clean up homepage steps:
-   - user can write a prompt or click one of the provided suggestions (with load more?)
-   - user clicks a suggestion or writes a prompt and clicks enter
+1. clean up homepage steps ✅
 2. still on homepage but different we do background processing:
    - uploading CSV file to S3 and getting URL back to be used from LLM/Codesandbox
    - we store the url and chatId in the DB and redirect the user to the chat page
