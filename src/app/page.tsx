@@ -11,6 +11,7 @@ import { extractCsvData } from "@/lib/csvUtils";
 import { HeroSection } from "@/components/hero-section";
 import { redirect } from "next/navigation";
 import { createChat } from "@/lib/chat-store";
+import { useS3Upload } from "next-s3-upload";
 
 export interface SuggestedQuestion {
   id: string;
@@ -18,20 +19,34 @@ export interface SuggestedQuestion {
 }
 
 export default function CSVToChat() {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const { uploadToS3 } = useS3Upload();
+  const [localFile, setLocalFile] = useState<File | null>(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState<
     SuggestedQuestion[]
   >([]);
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
 
   const handleFileUpload = useCallback(async (file: File | null) => {
     if (file && file.type === "text/csv") {
-      setUploadedFile(file);
+      setLocalFile(file);
       setIsProcessing(true);
 
       try {
         const { headers, sampleRows } = await extractCsvData(file);
+
+        if (headers.length === 0) {
+          alert("Please upload a CSV with headers.");
+          setLocalFile(null);
+          setIsProcessing(false);
+          return;
+        }
+
+        setCsvHeaders(headers);
+
+        const uploadPromise = uploadToS3(file);
 
         const response = await fetch("/api/generate-questions", {
           method: "POST",
@@ -45,6 +60,10 @@ export default function CSVToChat() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        const uploadedFile = await uploadPromise;
+
+        setUploadedFileUrl(uploadedFile.url);
+
         const data = await response.json();
         setSuggestedQuestions(data.questions);
       } catch (error) {
@@ -56,7 +75,7 @@ export default function CSVToChat() {
   }, []);
 
   const removeFile = () => {
-    setUploadedFile(null);
+    setLocalFile(null);
     setSuggestedQuestions([]);
   };
 
@@ -68,12 +87,22 @@ export default function CSVToChat() {
     const text = messageText || inputValue.trim();
     if (!text) return;
 
-    // Store the message in localStorage before redirect
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pendingMessage", text);
+    if (!uploadedFileUrl) {
+      alert("Please upload a CSV file first.");
+      return;
     }
 
-    const id = await createChat();
+    if (csvHeaders.length === 0) {
+      alert("Please upload a CSV with headers.");
+      return;
+    }
+
+    localStorage.setItem("pendingMessage", text);
+
+    const id = await createChat({
+      csvHeaders: csvHeaders,
+      csvFileUrl: uploadedFileUrl,
+    });
     redirect(`/chat/${id}`);
   };
 
@@ -92,19 +121,19 @@ export default function CSVToChat() {
 
           <UploadArea
             onFileChange={handleFileUpload}
-            uploadedFile={uploadedFile}
+            uploadedFile={localFile}
           />
         </div>
 
         {/* Large Input Area */}
-        {uploadedFile && (
+        {localFile && (
           <HomeInput
             value={inputValue}
             onChange={setInputValue}
             onSend={() => {
               handleSendMessage(inputValue);
             }}
-            uploadedFile={uploadedFile}
+            uploadedFile={localFile}
             onRemoveFile={removeFile}
           />
         )}

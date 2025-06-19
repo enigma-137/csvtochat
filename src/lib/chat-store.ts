@@ -8,15 +8,23 @@ const CHAT_KEY_PREFIX = "chat:";
 type ChatData = {
   messages: Message[];
   csvFileUrl: string | null;
-  title: string | null;
+  csvHeaders: string[] | null;
+  title: string | null; // inferring the title of the chat based on csvHeaders and first user messages
   // ...future fields
 };
 
-export async function createChat(): Promise<string> {
+export async function createChat({
+  csvHeaders,
+  csvFileUrl,
+}: {
+  csvHeaders: string[];
+  csvFileUrl: string;
+}): Promise<string> {
   const id = generateId();
   const initial: ChatData = {
     messages: [],
-    csvFileUrl: null,
+    csvHeaders,
+    csvFileUrl,
     title: null,
   };
   await redis.set(`${CHAT_KEY_PREFIX}${id}`, JSON.stringify(initial));
@@ -35,16 +43,19 @@ export async function loadChat(id: string): Promise<ChatData | null> {
 
 export async function saveChat({
   id,
+  csvHeaders,
   messages,
   csvFileUrl = null,
   title = null,
 }: {
   id: string;
+  csvHeaders: string[] | null;
   messages: Message[];
   csvFileUrl?: string | null;
   title?: string | null;
 }): Promise<void> {
   const chatData: ChatData = {
+    csvHeaders,
     messages,
     csvFileUrl,
     title,

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     // Persist the code execution output as an assistant message in the chat history
     if (id) {
-      const messagesDb = await loadChat(id);
+      const chat = await loadChat(id);
       const toolCallMessage = {
         id: generateId(),
         role: "assistant" as const,
@@ -32,7 +32,9 @@ export async function POST(req: NextRequest) {
       };
       await saveChat({
         id,
-        messages: [...messagesDb, toolCallMessage],
+        csvHeaders: chat?.csvHeaders || [],
+        csvFileUrl: chat?.csvFileUrl || null,
+        messages: [...(chat?.messages || []), toolCallMessage],
       });
     }
 

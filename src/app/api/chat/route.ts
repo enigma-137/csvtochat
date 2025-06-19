@@ -16,8 +16,8 @@ export async function GET(request: Request) {
     return new Response("id is required", { status: 400 });
   }
 
-  const messages = await loadChat(chatId);
-  const mostRecentMessage = messages.at(-1);
+  const chat = await loadChat(chatId);
+  const mostRecentMessage = chat?.messages.at(-1);
 
   if (!mostRecentMessage || mostRecentMessage.role !== "assistant") {
     return new Response("No recent assistant message found", { status: 404 });
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 export async function POST(req: Request) {
   const { id, message } = await req.json();
 
-  const messagesDb = await loadChat(id);
+  const chat = await loadChat(id);
 
   const newUserMessage: Message = {
     id: generateId(),
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     createdAt: new Date(),
   };
 
-  const messagesToSave: Message[] = [...messagesDb, newUserMessage];
+  const messagesToSave: Message[] = [...(chat?.messages || []), newUserMessage];
 
   const coreMessagesForStream = messagesToSave
     .filter((msg) => msg.role === "user" || msg.role === "assistant")
@@ -63,7 +63,17 @@ You are an expert data scientist assistant that writes python code to answer que
 
 You are given a dataset and a question.
 
-You will write python code to answer the question. 
+The dataset is available at the following S3 URL: ${
+      chat?.csvFileUrl || "[NO FILE URL PROVIDED]"
+    }
+The dataset has the following columns: ${
+      chat?.csvHeaders?.join(", ") || "[NO HEADERS PROVIDED]"
+    }
+
+You must always write python code that:
+- Downloads the CSV from the provided S3 URL (using requests or pandas.read_csv).
+- Uses the provided columns for analysis.
+- Never outputs more than one graph per code response. If a question could be answered with multiple graphs, choose the most relevant or informative one and only output that single graph. This is to prevent slow output.
 
 Always return the python code in a single unique code block.
 
@@ -103,6 +113,8 @@ Python sessions come pre-installed with the following dependencies, any other de
     messages: coreMessagesForStream,
     async onFinish({ response }) {
       await saveChat({
+        csvHeaders: chat?.csvHeaders || [],
+        csvFileUrl: chat?.csvFileUrl,
         id,
         messages: appendResponseMessages({
           messages: messagesToSave,
