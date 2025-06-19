@@ -9,13 +9,14 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const messages = await loadChat(id);
+  const chat = await loadChat(id);
 
   // Ensure initialMessages has all required properties from UIMessage
-  const initialMessages: Message[] = messages.map((msg) => ({
-    ...msg,
-    parts: [{ type: "text", text: msg.content }], // Provide a default parts array
-  }));
+  const initialMessages: Message[] =
+    chat?.messages.map((msg) => ({
+      ...msg,
+      parts: [{ type: "text", text: msg.content }], // Provide a default parts array
+    })) || [];
 
   return (
     <ChatScreen id={id} initialMessages={initialMessages} uploadedFile={null} />
