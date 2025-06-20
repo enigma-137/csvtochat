@@ -1,6 +1,6 @@
 import { runPython } from "@/lib/coding";
 import { NextRequest, NextResponse } from "next/server";
-import { loadChat, saveChat } from "@/lib/chat-store";
+import { loadChat, saveNewMessage } from "@/lib/chat-store";
 import { generateId } from "ai";
 
 export async function POST(req: NextRequest) {
@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
 
     // Persist the code execution output as an assistant message in the chat history
     if (id) {
-      const chat = await loadChat(id);
       const toolCallMessage = {
         id: generateId(),
         role: "assistant" as const,
@@ -35,12 +34,7 @@ export async function POST(req: NextRequest) {
           },
         },
       };
-      await saveChat({
-        id,
-        csvHeaders: chat?.csvHeaders || [],
-        csvFileUrl: chat?.csvFileUrl || null,
-        messages: [...(chat?.messages || []), toolCallMessage],
-      });
+      await saveNewMessage({ id, message: toolCallMessage });
     }
 
     return NextResponse.json(result);

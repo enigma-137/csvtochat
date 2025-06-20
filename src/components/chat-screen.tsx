@@ -14,6 +14,7 @@ import { TerminalOutput } from "./chatTools/TerminalOutput";
 import { ErrorOutput } from "./chatTools/ErrorOutput";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { useDraftedInput } from "../hooks/useDraftedInput";
+import { DbMessage } from "@/lib/chat-store";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -26,15 +27,14 @@ export type Message = UIMessage & {
       result?: any;
     };
   };
-  isCustomError?: boolean;
-  _autoErrorResolved?: boolean;
   duration?: number; // Duration in seconds for LLM/coding
+  isAutoErrorResolution?: boolean; // Added for auto error resolution prompt
 };
 
 interface ChatScreenProps {
   uploadedFile: File | null;
   id?: string;
-  initialMessages?: Message[];
+  initialMessages?: DbMessage[];
 }
 
 export function extractCodeFromText(text: string) {
@@ -59,6 +59,25 @@ function ThinkingIndicator() {
   );
 }
 
+// ErrorBanner component for custom error and auto resolution prompt messages
+function ErrorBanner({ isWaiting }: { isWaiting: boolean }) {
+  return (
+    <div className="mt-4 rounded-lg overflow-hidden bg-slate-50 border border-[#cad5e2] py-3 px-4 flex items-center max-w-[580px]">
+      {isWaiting && (
+        <img
+          src="/loading.svg"
+          alt="Loading"
+          className="size-[14px] animate-spin"
+        />
+      )}
+      <span className="text-[#45556c] text-sm ml-2">
+        Something went wrong. Please hold tight while we fix things behind the
+        scenes
+      </span>
+    </div>
+  );
+}
+
 export function ChatScreen({
   uploadedFile,
   id,
@@ -67,7 +86,7 @@ export function ChatScreen({
   const router = useRouter();
   const { messages, setMessages, append, data, status } = useChat({
     id, // use the provided chat ID
-    initialMessages: initialMessages as UIMessage[], // initial messages if provided
+    initialMessages: initialMessages || [], // initial messages if provided
     sendExtraMessageFields: true, // send id and createdAt for each message
     experimental_prepareRequestBody({ messages, id }) {
       return { message: messages[messages.length - 1].content, id };
@@ -75,8 +94,6 @@ export function ChatScreen({
     // Fake tool call
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
-
-      console.log("code", code);
 
       if (code) {
         // Add a "tool-invocation" message with a "start" state
@@ -120,35 +137,24 @@ export function ChatScreen({
           : "";
 
         if (errorOccurred) {
-          // Display custom assistant message
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: message.id + "_error_notice",
-              role: "assistant",
-              content:
-                "Something went wrong. Please hold tight while we fix things behind the scenes.",
-              isCustomError: true,
-            },
-          ]);
+          // Send error back to AI for resolution
+          const errorResolutionPrompt = `The following error occurred when running the code you provided: ${errorMessage}. Please try to fix the code and try again.`;
 
-          // Prevent infinite retry: only retry if not already retried for this message
-          if (!(message as Message)._autoErrorResolved) {
-            // Send error back to AI for resolution
-            const errorResolutionPrompt = `The following error occurred when running the code you provided: ${errorMessage}. Please try to fix the code and try again.`;
-            // Mark this message as already retried
-            const retryMessage = {
-              ...(message as Message),
-              _autoErrorResolved: true,
-            };
-            // Append the error resolution prompt as a user message
-            setTimeout(() => {
-              append({
+          // Append the error resolution prompt as a user message
+          setTimeout(() => {
+            append(
+              {
                 role: "user",
                 content: errorResolutionPrompt,
-              });
-            }, 1000); // slight delay for UX
-          }
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Auto-Error-Resolved": "true",
+                },
+              }
+            );
+          }, 1000); // slight delay for UX
         }
 
         // Update the tool call message with the "result" state
@@ -258,36 +264,29 @@ export function ChatScreen({
                 )}
 
                 {currentMessage.role === "user" ? (
-                  <div className="flex justify-end">
-                    <div className="bg-slate-200 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
-                      <p className="text-slate-800 text-sm">
-                        {currentMessage.content}
-                      </p>
-                    </div>
-                  </div>
+                  <>
+                    {currentMessage.isAutoErrorResolution ? (
+                      <ErrorBanner isWaiting={isThisLastMessage} />
+                    ) : (
+                      <div className="flex justify-end">
+                        <div className="bg-slate-200 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
+                          <p className="text-slate-800 text-sm">
+                            {currentMessage.content}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="space-y-3">
                     <div className="space-y-4">
-                      {/* Custom error message styling */}
-                      {currentMessage.isCustomError ? (
-                        <div className="mt-4 rounded-lg overflow-hidden border border-yellow-500 bg-yellow-100 p-4 flex items-center">
-                          <img
-                            src="/loading.svg"
-                            alt="Loading"
-                            className="w-6 h-6 animate-spin"
-                          />
-                          <span className="text-yellow-800 font-semibold ml-2">
-                            {currentMessage.content}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="text-slate-800 text-sm prose">
-                          <MemoizedMarkdown
-                            id={currentMessage.id}
-                            content={currentMessage.content}
-                          />
-                        </div>
-                      )}
+                      <div className="text-slate-800 text-sm prose">
+                        <MemoizedMarkdown
+                          id={currentMessage.id}
+                          content={currentMessage.content}
+                        />
+                      </div>
+
                       {currentMessage.isThinking && (
                         <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse">
                           <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">

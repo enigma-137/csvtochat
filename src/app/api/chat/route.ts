@@ -1,12 +1,12 @@
 import { togetherAISDKClient } from "@/lib/clients";
 import {
-  appendResponseMessages,
   createDataStream,
   streamText,
   generateId,
-  Message,
+  CoreMessage,
+  appendResponseMessages,
 } from "ai";
-import { loadChat, saveChat } from "@/lib/chat-store";
+import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -38,16 +38,26 @@ export async function GET(request: Request) {
 export async function POST(req: Request) {
   const { id, message } = await req.json();
 
+  // get from headers X-Auto-Error-Resolved
+  const errorResolved = req.headers.get("X-Auto-Error-Resolved");
+
   const chat = await loadChat(id);
 
-  const newUserMessage: Message = {
+  const newUserMessage: DbMessage = {
     id: generateId(),
     role: "user",
     content: message,
     createdAt: new Date(),
+    isAutoErrorResolution: errorResolved === "true",
   };
 
-  const messagesToSave: Message[] = [...(chat?.messages || []), newUserMessage];
+  // Save the new user message
+  await saveNewMessage({ id, message: newUserMessage });
+
+  const messagesToSave: DbMessage[] = [
+    ...(chat?.messages || []),
+    newUserMessage,
+  ];
 
   const coreMessagesForStream = messagesToSave
     .filter((msg) => msg.role === "user" || msg.role === "assistant")
@@ -113,28 +123,36 @@ Python sessions come pre-installed with the following dependencies, any other de
 - xlrd
 - sympy
 `,
-    messages: coreMessagesForStream,
+    messages: coreMessagesForStream.filter(
+      (msg) => msg.role !== "system"
+    ) as CoreMessage[],
     async onFinish({ response }) {
       // End timing
       const end = Date.now();
       const duration = (end - start) / 1000;
-      // Add duration to the last assistant message
-      const responseMessages = (response.messages || []).map(
-        (msg, idx, arr) => {
-          if (idx === arr.length - 1 && msg.role === "assistant") {
-            return { ...msg, duration };
-          }
-          return msg;
-        }
-      );
-      await saveChat({
-        csvHeaders: chat?.csvHeaders || [],
-        csvFileUrl: chat?.csvFileUrl,
+
+      if (response.messages.length > 1) {
+        console.log("response.messages", response.messages);
+        return;
+      }
+
+      const responseMessages = appendResponseMessages({
+        messages: messagesToSave,
+        responseMessages: response.messages,
+      });
+
+      const responseMessage = responseMessages.at(-1);
+
+      if (!responseMessage) {
+        return;
+      }
+
+      await saveNewMessage({
         id,
-        messages: appendResponseMessages({
-          messages: messagesToSave,
-          responseMessages,
-        }),
+        message: {
+          ...responseMessage,
+          duration,
+        },
       });
     },
   });

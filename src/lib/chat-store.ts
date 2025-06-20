@@ -1,17 +1,17 @@
 "use server";
-import { Message as AIMsg } from "ai";
+import { Message as AIMsg, CoreAssistantMessage, CoreToolMessage } from "ai";
 import { generateId } from "ai";
 import { redis } from "./clients"; // Import your redis client
-
 const CHAT_KEY_PREFIX = "chat:";
 
 // Extend the Message type to include duration for Redis persistence
-export type Message = AIMsg & {
+export type DbMessage = AIMsg & {
   duration?: number;
+  isAutoErrorResolution?: boolean; // if true then this message is an automatic error resolution prompt
 };
 
 type ChatData = {
-  messages: Message[];
+  messages: DbMessage[];
   csvFileUrl: string | null;
   csvHeaders: string[] | null;
   title: string | null; // inferring the title of the chat based on csvHeaders and first user messages
@@ -46,24 +46,31 @@ export async function loadChat(id: string): Promise<ChatData | null> {
   }
 }
 
-export async function saveChat({
+export async function saveNewMessage({
   id,
-  csvHeaders,
-  messages,
-  csvFileUrl = null,
-  title = null,
+  message,
 }: {
   id: string;
-  csvHeaders: string[] | null;
-  messages: Message[];
-  csvFileUrl?: string | null;
-  title?: string | null;
+  message: DbMessage;
 }): Promise<void> {
-  const chatData: ChatData = {
-    csvHeaders,
-    messages,
-    csvFileUrl,
-    title,
-  };
-  await redis.set(`${CHAT_KEY_PREFIX}${id}`, JSON.stringify(chatData));
+  const chat = await loadChat(id);
+  if (chat) {
+    const updatedMessages = [...(chat.messages || []), message];
+    await redis.set(
+      `${CHAT_KEY_PREFIX}${id}`,
+      JSON.stringify({
+        ...chat,
+        messages: updatedMessages,
+      })
+    );
+  } else {
+    // If chat does not exist, create a new one with this message
+    const newChat: ChatData = {
+      messages: [message],
+      csvHeaders: null,
+      csvFileUrl: null,
+      title: null,
+    };
+    await redis.set(`${CHAT_KEY_PREFIX}${id}`, JSON.stringify(newChat));
+  }
 }
