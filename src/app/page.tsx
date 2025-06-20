@@ -100,6 +100,7 @@ export default function CSVToChat() {
     localStorage.setItem("pendingMessage", text);
 
     const id = await createChat({
+      userQuestion: text, // it's not stored in db here just used for chat title!
       csvHeaders: csvHeaders,
       csvFileUrl: uploadedFileUrl,
     });
