@@ -3,25 +3,22 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+import { ChatHistoryMenu } from "./ChatHistoryMenu";
+
 interface HeaderProps {
   onNewChat?: () => void;
 }
 
 export function Header({ onNewChat }: HeaderProps) {
   return (
-    <aside className="flex flex-row md:flex-col md:h-screen md:w-20 md:fixed md:left-0 md:top-0 items-center justify-between p-4 border-b md:border-b-0 md:border-r border-slate-100 z-20 bg-white">
+    <aside className="flex flex-row-reverse md:flex-col md:h-screen md:w-20 md:fixed md:left-0 md:top-0 items-center justify-between p-4 border-b md:border-b-0 md:border-r border-slate-100 z-20 bg-white">
       {/* Icons (top on desktop, left on mobile) */}
-      <div className="flex flex-row gap-4 text-slate-400 md:flex-col md:gap-2 md:w-full">
+      <div className="flex flex-row gap-4 text-slate-400 md:flex-col md:gap-2 md:w-full items-center">
         <a href="https://github.com/nutlope">
           <img src="/github.svg" className="size-9 mx-auto" />
         </a>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="cursor-pointer !p-1 mx-auto"
-        >
-          <img src="/history.svg" className="size-9" />
-        </Button>
+        <ChatHistoryMenu />
+        {/* New Chat Button */}
         <Button
           variant="ghost"
           size="sm"

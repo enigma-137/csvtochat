@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         toolCall: {
           toolInvocation: {
             toolName: "runCode",
-            args: code,
+            // args: code, // maybe we don't save code also here cause it's already in the previous llm message
             state: "result",
             result: result,
           },

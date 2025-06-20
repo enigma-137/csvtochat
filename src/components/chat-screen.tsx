@@ -339,10 +339,11 @@ export function ChatScreen({
           onChange={(value) => setInputValue(value)}
           onSend={async () => {
             // Clear input and localStorage immediately on submit
+            const newMessage = inputValue;
             clearInputValue();
             await append({
               role: "user",
-              content: inputValue,
+              content: newMessage,
             });
           }}
           uploadedFile={uploadedFile}
