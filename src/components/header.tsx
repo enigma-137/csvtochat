@@ -9,29 +9,36 @@ interface HeaderProps {
 
 export function Header({ onNewChat }: HeaderProps) {
   return (
-    <div className="flex items-center justify-between p-4 border-b border-slate-100">
-      <Link href="/" className="flex items-center">
-        <img src="/logo.svg" className="size-8" />
-      </Link>
-      <div className="flex items-center gap-4 text-slate-400">
+    <aside className="flex flex-row md:flex-col md:h-screen md:w-20 md:fixed md:left-0 md:top-0 items-center justify-between p-4 border-b md:border-b-0 md:border-r border-slate-100 z-20 bg-white">
+      {/* Icons (top on desktop, left on mobile) */}
+      <div className="flex flex-row gap-4 text-slate-400 md:flex-col md:gap-2 md:w-full">
         <a href="https://github.com/nutlope">
-          <img src="/github.svg" className="size-9" />
+          <img src="/github.svg" className="size-9 mx-auto" />
         </a>
-
-        <Button variant="ghost" size="sm" className="cursor-pointer !p-1">
-          <img src="/history.svg" className="size-9" />
-        </Button>
-
         <Button
           variant="ghost"
           size="sm"
-          className="text-slate-400 gap-1 px-2 cursor-pointer"
+          className="cursor-pointer !p-1 mx-auto"
+        >
+          <img src="/history.svg" className="size-9" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-slate-400 gap-1 px-2 cursor-pointer mx-auto"
           onClick={onNewChat}
         >
           <img src="/new.svg" className="size-9" />
-          New chat
+          <span className="block md:hidden">New chat</span>
         </Button>
       </div>
-    </div>
+      {/* Logo (bottom on desktop, right on mobile) */}
+      <Link
+        href="/"
+        className="flex items-center md:mt-auto md:mb-2 md:w-full justify-center"
+      >
+        <img src="/logo.svg" className="size-8" />
+      </Link>
+    </aside>
   );
 }
