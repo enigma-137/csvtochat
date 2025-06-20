@@ -1,9 +1,14 @@
 "use server";
-import { Message } from "ai";
+import { Message as AIMsg } from "ai";
 import { generateId } from "ai";
 import { redis } from "./clients"; // Import your redis client
 
 const CHAT_KEY_PREFIX = "chat:";
+
+// Extend the Message type to include duration for Redis persistence
+export type Message = AIMsg & {
+  duration?: number;
+};
 
 type ChatData = {
   messages: Message[];

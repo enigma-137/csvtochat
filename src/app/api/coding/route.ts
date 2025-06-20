@@ -11,7 +11,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Code is required" }, { status: 400 });
     }
 
+    // Start timing
+    const start = Date.now();
     const result = await runPython(code, session_id, files);
+    const end = Date.now();
+    const duration = (end - start) / 1000;
 
     // Persist the code execution output as an assistant message in the chat history
     if (id) {
@@ -21,6 +25,7 @@ export async function POST(req: NextRequest) {
         role: "assistant" as const,
         content: "Code execution complete.",
         createdAt: new Date(),
+        duration,
         toolCall: {
           toolInvocation: {
             toolName: "runCode",

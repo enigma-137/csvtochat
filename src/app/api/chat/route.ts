@@ -56,6 +56,9 @@ export async function POST(req: Request) {
       content: msg.content,
     }));
 
+  // Start timing
+  const start = Date.now();
+
   const stream = streamText({
     model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
     system: `
@@ -112,13 +115,25 @@ Python sessions come pre-installed with the following dependencies, any other de
 `,
     messages: coreMessagesForStream,
     async onFinish({ response }) {
+      // End timing
+      const end = Date.now();
+      const duration = (end - start) / 1000;
+      // Add duration to the last assistant message
+      const responseMessages = (response.messages || []).map(
+        (msg, idx, arr) => {
+          if (idx === arr.length - 1 && msg.role === "assistant") {
+            return { ...msg, duration };
+          }
+          return msg;
+        }
+      );
       await saveChat({
         csvHeaders: chat?.csvHeaders || [],
         csvFileUrl: chat?.csvFileUrl,
         id,
         messages: appendResponseMessages({
           messages: messagesToSave,
-          responseMessages: response.messages || [],
+          responseMessages,
         }),
       });
     },

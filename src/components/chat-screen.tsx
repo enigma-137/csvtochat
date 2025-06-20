@@ -28,6 +28,7 @@ export type Message = UIMessage & {
   };
   isCustomError?: boolean;
   _autoErrorResolved?: boolean;
+  duration?: number; // Duration in seconds for LLM/coding
 };
 
 interface ChatScreenProps {
@@ -217,7 +218,7 @@ export function ChatScreen({
 
       {/* Messages */}
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-6 mx-auto max-w-[700px]"
+        className="flex-1 overflow-y-auto p-4 space-y-6 mx-auto max-w-[700px] w-full"
         ref={messagesContainerRef}
       >
         {messages.map((message, messageIdx) => {
@@ -301,6 +302,22 @@ export function ChatScreen({
                         )}
                       </div>
                     )}
+                    {/* Timestamp for assistant messages */}
+                    {currentMessage.role === "assistant" &&
+                      currentMessage.createdAt && (
+                        <div className="flex justify-start mt-1">
+                          <span className="text-xs text-slate-400">
+                            {typeof currentMessage.duration === "number" && (
+                              <>
+                                <span className="mr-0.5">
+                                  {currentMessage.duration.toFixed(2)}s -
+                                </span>
+                              </>
+                            )}
+                            {formatTimestamp(currentMessage.createdAt)}
+                          </span>
+                        </div>
+                      )}
                   </div>
                 </div>
               )}
@@ -330,4 +347,30 @@ export function ChatScreen({
       />
     </div>
   );
+}
+
+// Add this helper function at the top-level (outside the component)
+function formatTimestamp(dateString: string | number | Date): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
+  let timeAgo = "";
+  if (secondsAgo < 60) {
+    timeAgo = `${secondsAgo}s`;
+  } else if (secondsAgo < 3600) {
+    timeAgo = `${Math.floor(secondsAgo / 60)}m`;
+  } else {
+    timeAgo = `${Math.floor(secondsAgo / 3600)}h`;
+  }
+  // Format: Apr 8, 06:17:50 PM
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  };
+  const formatted = date.toLocaleString("en-US", options);
+  return formatted;
 }
