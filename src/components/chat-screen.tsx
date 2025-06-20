@@ -231,7 +231,7 @@ export function ChatScreen({
       <div className="flex flex-col md:ml-[70px]">
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto p-4 space-y-6 mx-auto max-w-[700px] w-full"
+          className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full"
           ref={messagesContainerRef}
         >
           {messages.map((message, messageIdx) => {
@@ -258,7 +258,7 @@ export function ChatScreen({
             const isThisLastMessage = messages.length - 1 === messageIdx;
 
             return (
-              <div key={currentMessage.id}>
+              <div key={currentMessage.id} className="flex justify-end">
                 {isThisLastMessage && status === "streaming" && (
                   <ThinkingIndicator />
                 )}
@@ -268,65 +268,64 @@ export function ChatScreen({
                     {currentMessage.isAutoErrorResolution ? (
                       <ErrorBanner isWaiting={isThisLastMessage} />
                     ) : (
-                      <div className="flex justify-end">
-                        <div className="bg-slate-200 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
-                          <p className="text-slate-800 text-sm">
-                            {currentMessage.content}
-                          </p>
-                        </div>
+                      <div
+                        className="flex justify-end items-center relative overflow-hidden gap-2.5 px-3 py-2 rounded bg-slate-200 border border-[#cad5e2] max-w-[240px] md:max-w-[50%]"
+                        style={{
+                          boxShadow: "0px 0px 7px -5px rgba(0,0,0,0.25)",
+                        }}
+                      >
+                        <p className="text-sm text-left text-[#0f172b]">
+                          {currentMessage.content}
+                        </p>
                       </div>
                     )}
                   </>
                 ) : (
-                  <div className="space-y-3">
-                    <div className="space-y-4">
-                      <div className="text-slate-800 text-sm prose">
-                        <MemoizedMarkdown
-                          id={currentMessage.id}
-                          content={currentMessage.content}
-                        />
-                      </div>
-
-                      {currentMessage.isThinking && (
-                        <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse">
-                          <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
-                            Running code...
-                          </h3>
-                          <CodeRender code="" language="bash" theme="dark" />
-                        </div>
-                      )}
-
-                      {currentMessage.toolCall?.toolInvocation.state ===
-                        "result" && (
-                        <div className="text-slate-800 text-sm leading-relaxed">
-                          {stdOut && <TerminalOutput data={stdOut.data} />}
-
-                          {errorCode && <ErrorOutput data={errorCode.data} />}
-
-                          {imagePngBase64 && (
-                            <ImageFigure
-                              imageData={imagePngBase64.data as any}
-                            />
-                          )}
-                        </div>
-                      )}
-                      {/* Timestamp for assistant messages */}
-                      {currentMessage.role === "assistant" &&
-                        currentMessage.createdAt && (
-                          <div className="flex justify-start mt-1">
-                            <span className="text-xs text-slate-400">
-                              {typeof currentMessage.duration === "number" && (
-                                <>
-                                  <span className="mr-0.5">
-                                    {currentMessage.duration.toFixed(2)}s -
-                                  </span>
-                                </>
-                              )}
-                              {formatTimestamp(currentMessage.createdAt)}
-                            </span>
-                          </div>
-                        )}
+                  <div className="">
+                    <div className="text-slate-800 text-sm prose">
+                      <MemoizedMarkdown
+                        id={currentMessage.id}
+                        content={currentMessage.content}
+                      />
                     </div>
+
+                    {currentMessage.isThinking && (
+                      <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse">
+                        <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
+                          Running code...
+                        </h3>
+                        <CodeRender code="" language="bash" theme="dark" />
+                      </div>
+                    )}
+
+                    {currentMessage.toolCall?.toolInvocation.state ===
+                      "result" && (
+                      <div className="text-slate-800 text-sm leading-relaxed">
+                        {stdOut && <TerminalOutput data={stdOut.data} />}
+
+                        {errorCode && <ErrorOutput data={errorCode.data} />}
+
+                        {imagePngBase64 && (
+                          <ImageFigure imageData={imagePngBase64.data as any} />
+                        )}
+                      </div>
+                    )}
+                    {/* Timestamp for assistant messages */}
+                    {currentMessage.role === "assistant" &&
+                      currentMessage.createdAt && (
+                        <div className="flex justify-start mt-3">
+                          <span className="text-xs text-slate-400">
+                            {typeof currentMessage.duration === "number" && (
+                              <>
+                                <span className="mr-0.5">
+                                  {currentMessage.duration.toFixed(2)}s -
+                                </span>
+                              </>
+                            )}
+                            {formatTimestamp(currentMessage.createdAt)}
+                          </span>
+                        </div>
+                      )}
                   </div>
                 )}
 
