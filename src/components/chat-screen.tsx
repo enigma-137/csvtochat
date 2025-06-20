@@ -180,8 +180,13 @@ export function ChatScreen({
   });
 
   // On mount, check for pendingMessage in localStorage and append it if present
+  const didAppendPending = React.useRef(false);
   useEffect(() => {
-    if (messages.length === 0 && typeof window !== "undefined") {
+    if (
+      !didAppendPending.current &&
+      messages.length === 0 &&
+      typeof window !== "undefined"
+    ) {
       const pending = localStorage.getItem("pendingMessage");
       if (pending) {
         append({
@@ -189,9 +194,10 @@ export function ChatScreen({
           content: pending,
         });
         localStorage.removeItem("pendingMessage");
+        didAppendPending.current = true;
       }
     }
-  }, []);
+  }, [append, messages.length]);
 
   // Use a unique key for each chat window's draft input
   const [inputValue, setInputValue, clearInputValue] = useDraftedInput(
