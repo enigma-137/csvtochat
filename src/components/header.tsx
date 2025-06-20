@@ -7,9 +7,10 @@ import { ChatHistoryMenu } from "./ChatHistoryMenu";
 
 interface HeaderProps {
   onNewChat?: () => void;
+  chatId?: string;
 }
 
-export function Header({ onNewChat }: HeaderProps) {
+export function Header({ onNewChat, chatId }: HeaderProps) {
   return (
     <aside className="flex flex-row-reverse md:flex-col md:h-screen md:w-20 md:fixed md:left-0 md:top-0 items-center justify-between p-4 border-b md:border-b-0 md:border-r border-slate-100 z-20 bg-white">
       {/* Icons (top on desktop, left on mobile) */}
@@ -17,7 +18,7 @@ export function Header({ onNewChat }: HeaderProps) {
         <a href="https://github.com/nutlope">
           <img src="/github.svg" className="size-9 mx-auto" />
         </a>
-        <ChatHistoryMenu />
+        <ChatHistoryMenu chatId={chatId} />
         {/* New Chat Button */}
         <Button
           variant="ghost"

@@ -226,7 +226,7 @@ export function ChatScreen({
 
   return (
     <div className="min-h-screen bg-white flex flex-col w-full">
-      <Header onNewChat={handleNewChat} />
+      <Header onNewChat={handleNewChat} chatId={id} />
 
       <div className="flex flex-col md:ml-[70px]">
         {/* Messages */}

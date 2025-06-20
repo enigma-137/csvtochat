@@ -17,7 +17,7 @@ export function QuestionSuggestionCard({
       className={cn(
         isLoading ? "animate-pulse" : "",
         onClick ? "cursor-pointer" : "",
-        "flex justify-start items-start overflow-hidden gap-2.5 px-3 py-2 rounded-lg bg-slate-50 border-[0.7px] border-[#cad5e2] w-fit md:min-w-[440px]"
+        "flex justify-start items-start overflow-hidden gap-2.5 px-3 py-2 rounded-lg bg-slate-50 border-[0.7px] border-[#cad5e2] w-full md:w-fit md:min-w-[440px]"
       )}
       onClick={onClick && onClick}
     >

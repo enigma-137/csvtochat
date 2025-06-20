@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,23 +13,55 @@ import {
   Drawer,
   DrawerTrigger,
   DrawerContent,
-  DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-export function ChatHistoryMenu() {
-  // Placeholder chat links
-  const chatLinks = [
-    { id: "1", title: "Chat with sales.csv" },
-    { id: "2", title: "Chat with marketing.csv" },
-    { id: "3", title: "Chat with data.csv" },
-  ];
+export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const [chatLinks, setChatLinks] = useState<{ id: string; title: string }[]>(
+    []
+  );
+
+  // Track visited chat ids in localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined" && chatId) {
+      const key = "visitedChatIds";
+      let ids: string[] = [];
+      try {
+        ids = JSON.parse(localStorage.getItem(key) || "[]");
+      } catch {}
+      if (!ids.includes(chatId)) {
+        ids.push(chatId);
+        localStorage.setItem(key, JSON.stringify(ids));
+      }
+    }
+  }, [chatId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const key = "visitedChatIds";
+    let ids: string[] = [];
+    try {
+      ids = JSON.parse(localStorage.getItem(key) || "[]");
+    } catch {}
+    if (ids.length === 0) return;
+    // Fetch chat metadata from backend
+    fetch("/api/chat/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setChatLinks(data);
+      });
+  }, []);
 
   const HistoryLinks = () => {
     return (
-      <div className="flex flex-col gap-2 pb-8 md:pb-5">
+      <div className="flex flex-col gap-2 pb-8 md:pb-5 mx-1.5">
         {chatLinks.map((chat) => {
           const href = `/chat/${chat.id}`;
           const isActive = pathname === href;
@@ -85,7 +117,21 @@ export function ChatHistoryMenu() {
               <img src="/history.svg" className="size-9" />
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="!bg-slate-100 !border-[0.5px] !border-[#45556c]">
+          <DrawerContent className="!bg-slate-100 !border-[0.5px] !border-[#45556c] pt-6">
+            <VisuallyHidden asChild>
+              <DrawerTitle>Chat History</DrawerTitle>
+            </VisuallyHidden>
+            <div className="absolute left-1/2 -translate-x-1/2 top-2 z-10">
+              <svg
+                width="164"
+                height="4"
+                viewBox="0 0 164 4"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="164" height="4" rx="2" fill="#E2E8F0" />
+              </svg>
+            </div>
             <HistoryLinks />
           </DrawerContent>
         </Drawer>

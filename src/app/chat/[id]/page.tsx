@@ -5,9 +5,10 @@ import type { Metadata } from "next";
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const chat = await loadChat(params.id);
+  const { id } = await params;
+  const chat = await loadChat(id);
   if (!chat) {
     return {
       title: "Chat not found | CSV2Chat",
