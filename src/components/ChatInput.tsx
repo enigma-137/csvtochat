@@ -1,21 +1,25 @@
 "use client";
 
 import type React from "react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import TooltipUsage from "./tooltipUsage";
 import { useUserLimits } from "@/hooks/useUserLimits";
 
 export function ChatInput({
+  isLLMAnswering,
   value,
   onChange,
   onSend,
   uploadedFile,
+  onStopLLM,
   placeholder = "Ask anything...",
 }: {
+  isLLMAnswering: boolean;
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
+  onStopLLM: () => void;
   uploadedFile?: {
     url: string;
   };
@@ -97,14 +101,25 @@ export function ChatInput({
                   resetTimestamp={resetTimestamp ?? undefined}
                 />
               )}
-              <Button
-                onClick={handleSendMessage}
-                disabled={!value.trim() || limitsLoading}
-                size="sm"
-                className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
-              >
-                <img src="/send.svg" className="size-3" />
-              </Button>
+
+              {isLLMAnswering ? (
+                <Button
+                  onClick={onStopLLM}
+                  size="sm"
+                  className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
+                >
+                  <img src="/stop.svg" className="size-3" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!value.trim() || limitsLoading}
+                  size="sm"
+                  className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
+                >
+                  <img src="/send.svg" className="size-3" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

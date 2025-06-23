@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Header } from "@/components/header";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
@@ -15,7 +15,9 @@ import { ErrorOutput } from "./chatTools/ErrorOutput";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { useDraftedInput } from "../hooks/useDraftedInput";
 import { DbMessage } from "@/lib/chat-store";
-import { cn } from "@/lib/utils";
+import { cn, extractCodeFromText, formatLLMTimestamp } from "@/lib/utils";
+import { ErrorBanner } from "./ui/ErrorBanner";
+import { ThinkingIndicator } from "./ui/ThinkingIndicator";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -32,62 +34,19 @@ export type Message = UIMessage & {
   isAutoErrorResolution?: boolean; // Added for auto error resolution prompt
 };
 
-interface ChatScreenProps {
+export function ChatScreen({
+  uploadedFile,
+  id,
+  initialMessages,
+}: {
   uploadedFile: {
     url: string;
   };
   id?: string;
   initialMessages?: DbMessage[];
-}
-
-export function extractCodeFromText(text: string) {
-  const codeRegex = /```python\s*([\s\S]*?)\s*```/g;
-  const match = codeRegex.exec(text);
-  return match ? match[1] : null;
-}
-
-// Thinking indicator component
-function ThinkingIndicator() {
-  return (
-    <div className="flex items-start justify-start my-4">
-      <img
-        src="/loading.svg"
-        alt="Thinking..."
-        className="size-4 animate-spin"
-      />
-      <span className="ml-2 text-[#006597] font-semibold text-sm">
-        Thinking <span className="animate-pulse">...</span>
-      </span>
-    </div>
-  );
-}
-
-// ErrorBanner component for custom error and auto resolution prompt messages
-function ErrorBanner({ isWaiting }: { isWaiting: boolean }) {
-  return (
-    <div className="mt-4 rounded-lg overflow-hidden bg-slate-50 border border-[#cad5e2] py-3 px-4 flex items-center max-w-[580px]">
-      {isWaiting && (
-        <img
-          src="/loading.svg"
-          alt="Loading"
-          className="size-[14px] animate-spin"
-        />
-      )}
-      <span className="text-[#45556c] text-sm ml-2">
-        Something went wrong. Please hold tight while we fix things behind the
-        scenes
-      </span>
-    </div>
-  );
-}
-
-export function ChatScreen({
-  uploadedFile,
-  id,
-  initialMessages,
-}: ChatScreenProps) {
+}) {
   const router = useRouter();
-  const { messages, setMessages, append, data, status } = useChat({
+  const { messages, setMessages, append, stop, status } = useChat({
     id, // use the provided chat ID
     initialMessages: initialMessages || [], // initial messages if provided
     sendExtraMessageFields: true, // send id and createdAt for each message
@@ -120,15 +79,73 @@ export function ChatScreen({
         });
 
         setIsCodeRunning(true);
-        const response = await fetch("/api/coding", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ code, id }),
-        });
+        codeAbortController.current = new AbortController();
+        let result;
+        try {
+          const response = await fetch("/api/coding", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code, id }),
+            signal: codeAbortController.current.signal,
+          });
 
-        const result = await response.json();
+          result = await response.json();
+        } catch (error: any) {
+          if (error.name === "AbortError") {
+            // Fetch was aborted, handle accordingly
+            setIsCodeRunning(false);
+            // Optionally update the tool call message to show cancellation
+            setMessages((prev) =>
+              prev.map((msg) => {
+                if (msg.id === message.id + "_tool_call") {
+                  return {
+                    ...msg,
+                    isThinking: false,
+                    content: "Code execution cancelled.",
+                    toolCall: {
+                      toolInvocation: {
+                        toolName: "runCode",
+                        args: code,
+                        state: "result",
+                        result: { outputs: [] },
+                      },
+                    },
+                  };
+                }
+                return msg;
+              })
+            );
+            return;
+          } else {
+            // Handle other errors
+            setIsCodeRunning(false);
+            setMessages((prev) =>
+              prev.map((msg) => {
+                if (msg.id === message.id + "_tool_call") {
+                  return {
+                    ...msg,
+                    isThinking: false,
+                    content: `Code execution failed: ${error.message}`,
+                    toolCall: {
+                      toolInvocation: {
+                        toolName: "runCode",
+                        args: code,
+                        state: "result",
+                        result: {
+                          outputs: [{ type: "error", data: error.message }],
+                        },
+                      },
+                    },
+                  };
+                }
+                return msg;
+              })
+            );
+            return;
+          }
+        }
 
         // Check for error in outputs
         const errorOutput = Array.isArray(result.outputs)
@@ -184,6 +201,7 @@ export function ChatScreen({
           });
         });
         setIsCodeRunning(false);
+        codeAbortController.current = null;
       }
     },
   });
@@ -218,6 +236,7 @@ export function ChatScreen({
   };
 
   const [isCodeRunning, setIsCodeRunning] = useState(false);
+  const codeAbortController = useRef<AbortController | null>(null);
   const { messagesContainerRef, messagesEndRef, isUserAtBottom } =
     useAutoScroll({ status, isCodeRunning });
 
@@ -264,10 +283,6 @@ export function ChatScreen({
                   isUserMessage ? "items-end" : "items-start"
                 )}
               >
-                {isThisLastMessage && status === "streaming" && (
-                  <ThinkingIndicator />
-                )}
-
                 {isUserMessage ? (
                   <>
                     {currentMessage.isAutoErrorResolution ? (
@@ -327,7 +342,7 @@ export function ChatScreen({
                                 </span>
                               </>
                             )}
-                            {formatTimestamp(currentMessage.createdAt)}
+                            {formatLLMTimestamp(currentMessage.createdAt)}
                           </span>
                         </div>
                       )}
@@ -360,34 +375,18 @@ export function ChatScreen({
               url: uploadedFile.url,
             }
           }
+          onStopLLM={() => {
+            if (status === "submitted" || status === "streaming") {
+              return stop();
+            }
+            if (isCodeRunning && codeAbortController.current) {
+              codeAbortController.current.abort();
+              setIsCodeRunning(false);
+            }
+          }}
+          isLLMAnswering={status === "submitted" || status === "streaming"}
         />
       </div>
     </div>
   );
-}
-
-// Add this helper function at the top-level (outside the component)
-function formatTimestamp(dateString: string | number | Date): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
-  let timeAgo = "";
-  if (secondsAgo < 60) {
-    timeAgo = `${secondsAgo}s`;
-  } else if (secondsAgo < 3600) {
-    timeAgo = `${Math.floor(secondsAgo / 60)}m`;
-  } else {
-    timeAgo = `${Math.floor(secondsAgo / 3600)}h`;
-  }
-  // Format: Apr 8, 06:17:50 PM
-  const options: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  };
-  const formatted = date.toLocaleString("en-US", options);
-  return formatted;
 }
