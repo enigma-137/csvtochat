@@ -17,8 +17,14 @@ export async function POST(req: NextRequest) {
     const end = Date.now();
     const duration = (end - start) / 1000;
 
+    if (req.signal.aborted) {
+      console.log("Request aborted already from the client");
+      // TODO persist on db that the code execution was aborted?
+      return new Response("Request aborted", { status: 200 });
+    }
+
     // Persist the code execution output as an assistant message in the chat history
-    if (id) {
+    if (id && !req.signal.aborted) {
       const toolCallMessage = {
         id: generateId(),
         role: "assistant" as const,

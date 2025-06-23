@@ -381,10 +381,13 @@ export function ChatScreen({
             }
             if (isCodeRunning && codeAbortController.current) {
               codeAbortController.current.abort();
+              console.log("Aborted code execution frontend");
               setIsCodeRunning(false);
             }
           }}
-          isLLMAnswering={status === "submitted" || status === "streaming"}
+          isLLMAnswering={
+            status === "submitted" || status === "streaming" || isCodeRunning
+          }
         />
       </div>
     </div>
