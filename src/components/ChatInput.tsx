@@ -25,12 +25,13 @@ export function ChatInput({
     remainingMessages,
     resetTimestamp,
     loading: limitsLoading,
+    refetch,
   } = useUserLimits();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onSend();
+      handleSendMessage();
     }
   };
 
@@ -45,6 +46,14 @@ export function ChatInput({
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
+
+  const handleSendMessage = async () => {
+    if (value.trim() === "") return;
+    onSend();
+    setTimeout(() => {
+      refetch();
+    }, 1000);
+  };
 
   return (
     <>
@@ -89,7 +98,7 @@ export function ChatInput({
                 />
               )}
               <Button
-                onClick={onSend}
+                onClick={handleSendMessage}
                 disabled={!value.trim() || limitsLoading}
                 size="sm"
                 className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"

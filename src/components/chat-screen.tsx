@@ -15,6 +15,7 @@ import { ErrorOutput } from "./chatTools/ErrorOutput";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { useDraftedInput } from "../hooks/useDraftedInput";
 import { DbMessage } from "@/lib/chat-store";
+import { cn } from "@/lib/utils";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -253,16 +254,21 @@ export function ChatScreen({
 
             const isThisLastMessage = messages.length - 1 === messageIdx;
 
+            const isUserMessage = currentMessage.role === "user";
+
             return (
               <div
                 key={currentMessage.id}
-                className="flex justify-end flex-col"
+                className={cn(
+                  "flex justify-end flex-col",
+                  isUserMessage ? "items-end" : "items-start"
+                )}
               >
                 {isThisLastMessage && status === "streaming" && (
                   <ThinkingIndicator />
                 )}
 
-                {currentMessage.role === "user" ? (
+                {isUserMessage ? (
                   <>
                     {currentMessage.isAutoErrorResolution ? (
                       <ErrorBanner isWaiting={isThisLastMessage} />

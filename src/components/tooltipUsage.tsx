@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -34,13 +34,23 @@ export default function TooltipUsage({
   remainingMessages: number;
   resetTimestamp?: number;
 }) {
+  const [open, setOpen] = useState(false);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    const interval = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(interval);
+  }, [open]);
+
   const formattedTime = useMemo(() => {
     if (!resetTimestamp) return undefined;
     return formatTimeRemaining(resetTimestamp);
-  }, [resetTimestamp]);
+    // Include tick so it recalculates every second when open
+  }, [resetTimestamp, tick]);
 
   return (
-    <Tooltip>
+    <Tooltip onOpenChange={setOpen} open={open}>
       <TooltipTrigger asChild>
         <button className="w-[87px] h-7 relative rounded border-[0.5px] border-[#90a1b9] flex flex-row gap-[3px] items-center justify-center cursor-pointer">
           <img src="/tooltip.svg" className="size-[14px]" />
@@ -51,7 +61,7 @@ export default function TooltipUsage({
         </button>
       </TooltipTrigger>
       {formattedTime && (
-        <TooltipContent sideOffset={8} className="min-w-[220px] bg-[#1d293d]">
+        <TooltipContent sideOffset={8} className="min-w-[260px] bg-[#1d293d]">
           <div className="flex justify-center items-center gap-2">
             <p className="text-sm font-medium text-left text-slate-200">
               Time remaining until refill:

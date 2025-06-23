@@ -4,6 +4,7 @@ interface UserLimits {
   remainingMessages: number | null;
   resetTimestamp: number | null;
   loading: boolean;
+  refetch: () => void;
 }
 
 export function useUserLimits(): UserLimits {
@@ -43,5 +44,6 @@ export function useUserLimits(): UserLimits {
     remainingMessages,
     resetTimestamp,
     loading,
+    refetch,
   };
 }
