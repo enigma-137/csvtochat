@@ -7,6 +7,7 @@ import {
   appendResponseMessages,
 } from "ai";
 import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
+import { limitMessages } from "@/lib/limits";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -40,6 +41,18 @@ export async function POST(req: Request) {
 
   // get from headers X-Auto-Error-Resolved
   const errorResolved = req.headers.get("X-Auto-Error-Resolved");
+
+  // Use IP address as a simple user fingerprint
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+  try {
+    if (!errorResolved) {
+      await limitMessages(ip);
+    }
+  } catch (err) {
+    return new Response("Too many messages. Daily limit reached.", {
+      status: 429,
+    });
+  }
 
   const chat = await loadChat(id);
 

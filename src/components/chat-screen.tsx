@@ -32,7 +32,9 @@ export type Message = UIMessage & {
 };
 
 interface ChatScreenProps {
-  uploadedFile: File | null;
+  uploadedFile: {
+    url: string;
+  };
   id?: string;
   initialMessages?: DbMessage[];
 }
@@ -210,12 +212,6 @@ export function ChatScreen({
     id ? `chatInputDraft-${id}` : "chatInputDraft"
   );
 
-  // Define onRemoveFile and onNewChat inside the Client Component
-  const handleRemoveFile = () => {
-    // TODO: Implement file removal logic if needed
-    console.log("File removed");
-  };
-
   const handleNewChat = () => {
     router.push("/");
   };
@@ -258,7 +254,10 @@ export function ChatScreen({
             const isThisLastMessage = messages.length - 1 === messageIdx;
 
             return (
-              <div key={currentMessage.id} className="flex justify-end">
+              <div
+                key={currentMessage.id}
+                className="flex justify-end flex-col"
+              >
                 {isThisLastMessage && status === "streaming" && (
                   <ThinkingIndicator />
                 )}
@@ -350,8 +349,11 @@ export function ChatScreen({
               content: newMessage,
             });
           }}
-          uploadedFile={uploadedFile}
-          onRemoveFile={handleRemoveFile}
+          uploadedFile={
+            uploadedFile && {
+              url: uploadedFile.url,
+            }
+          }
         />
       </div>
     </div>

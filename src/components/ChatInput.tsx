@@ -1,24 +1,32 @@
 "use client";
 
 import type React from "react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import TooltipUsage from "./tooltipUsage";
+import { useUserLimits } from "@/hooks/useUserLimits";
 
 export function ChatInput({
   value,
   onChange,
   onSend,
   uploadedFile,
-  onRemoveFile,
   placeholder = "Ask anything...",
 }: {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
-  uploadedFile?: File | null;
-  onRemoveFile?: () => void;
+  uploadedFile?: {
+    url: string;
+  };
   placeholder?: string;
 }) {
+  const {
+    remainingMessages,
+    resetTimestamp,
+    loading: limitsLoading,
+  } = useUserLimits();
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -62,25 +70,33 @@ export function ChatInput({
                 <img src="/uploaded-file.svg" alt="" className="w-4 h-4" />
                 <div className="flex justify-center items-center flex-grow-0 flex-shrink-0 relative gap-1.5">
                   <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative gap-1">
-                    <p className="flex-grow-0 flex-shrink-0 w-[100px] text-xs font-medium text-left text-[#1d293d]">
-                      {uploadedFile.name}
+                    <p
+                      className="flex-grow-0 flex-shrink-0 w-[100px] text-xs font-medium text-left text-[#1d293d] truncate"
+                      title={uploadedFile.url.split("/").pop() || ""}
+                    >
+                      {uploadedFile.url.split("/").pop()}
                     </p>
                   </div>
                 </div>
-                <button className="p-1 cursor-pointer" onClick={onRemoveFile}>
-                  <img src="/fileX.svg" alt="" className="size-2 min-w-2" />
-                </button>
               </div>
             )}
 
-            <Button
-              onClick={onSend}
-              disabled={!value.trim()}
-              size="sm"
-              className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
-            >
-              <img src="/send.svg" className="size-3" />
-            </Button>
+            <div className="flex flex-row gap-2">
+              {!limitsLoading && (
+                <TooltipUsage
+                  remainingMessages={remainingMessages ?? 0}
+                  resetTimestamp={resetTimestamp ?? undefined}
+                />
+              )}
+              <Button
+                onClick={onSend}
+                disabled={!value.trim() || limitsLoading}
+                size="sm"
+                className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
+              >
+                <img src="/send.svg" className="size-3" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -40,6 +40,12 @@ export default async function Page({
   const chat = await loadChat(id);
 
   return (
-    <ChatScreen id={id} initialMessages={chat?.messages} uploadedFile={null} />
+    <ChatScreen
+      id={id}
+      initialMessages={chat?.messages}
+      uploadedFile={{
+        url: chat?.csvFileUrl || "",
+      }}
+    />
   );
 }
