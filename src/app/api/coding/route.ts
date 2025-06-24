@@ -13,7 +13,31 @@ export async function POST(req: NextRequest) {
 
     // Start timing
     const start = Date.now();
-    const result = await runPython(code, session_id, files);
+
+    // Timeout logic: 60 seconds
+    const TIMEOUT_MS = 60000;
+    let timeoutHandle: NodeJS.Timeout | undefined = undefined;
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutHandle = setTimeout(() => {
+        reject(new Error("Code execution timed out after 60 seconds."));
+      }, TIMEOUT_MS);
+    });
+
+    let result;
+    try {
+      result = await Promise.race([
+        runPython(code, session_id, files),
+        timeoutPromise,
+      ]);
+    } catch (err: any) {
+      if (err.message && err.message.includes("timed out")) {
+        return NextResponse.json({ error: err.message }, { status: 504 });
+      }
+      throw err;
+    } finally {
+      if (timeoutHandle) clearTimeout(timeoutHandle);
+    }
+
     const end = Date.now();
     const duration = (end - start) / 1000;
 

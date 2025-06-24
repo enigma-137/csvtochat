@@ -87,7 +87,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   return (
     <>
       {/* Desktop: DropdownMenu, Mobile: Drawer */}
-      <div className="hidden md:block">
+      <div className="hidden md:flex h-[36px] items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

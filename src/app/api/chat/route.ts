@@ -1,6 +1,5 @@
 import { togetherAISDKClient } from "@/lib/clients";
 import {
-  createDataStream,
   streamText,
   generateId,
   CoreMessage,
@@ -8,33 +7,6 @@ import {
 } from "ai";
 import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
 import { limitMessages } from "@/lib/limits";
-
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const chatId = searchParams.get("chatId");
-
-  if (!chatId) {
-    return new Response("id is required", { status: 400 });
-  }
-
-  const chat = await loadChat(chatId);
-  const mostRecentMessage = chat?.messages.at(-1);
-
-  if (!mostRecentMessage || mostRecentMessage.role !== "assistant") {
-    return new Response("No recent assistant message found", { status: 404 });
-  }
-
-  const streamWithMessage = createDataStream({
-    execute: (buffer) => {
-      buffer.writeData({
-        type: "append-message",
-        message: JSON.stringify(mostRecentMessage),
-      });
-    },
-  });
-
-  return new Response(streamWithMessage, { status: 200 });
-}
 
 export async function POST(req: Request) {
   const { id, message } = await req.json();

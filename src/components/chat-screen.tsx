@@ -285,7 +285,9 @@ export function ChatScreen({
               >
                 {isUserMessage ? (
                   <>
-                    {currentMessage.isAutoErrorResolution ? (
+                    {currentMessage.content.startsWith(
+                      "The following error occurred when running the code you provided:"
+                    ) ? (
                       <ErrorBanner isWaiting={isThisLastMessage} />
                     ) : (
                       <div
