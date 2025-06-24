@@ -109,7 +109,7 @@ export function ChatInput({
                 <Button
                   onClick={onStopLLM}
                   size="sm"
-                  className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
+                  className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500 cursor-pointer"
                 >
                   <img src="/stop.svg" className="size-3" />
                 </Button>
@@ -118,7 +118,7 @@ export function ChatInput({
                   onClick={handleSendMessage}
                   disabled={!value.trim() || limitsLoading}
                   size="sm"
-                  className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500"
+                  className="size-[28px] p-0 bg-[#1D293D] disabled:bg-slate-400 hover:bg-slate-500 cursor-pointer"
                 >
                   <img src="/send.svg" className="size-3" />
                 </Button>

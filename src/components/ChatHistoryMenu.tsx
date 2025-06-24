@@ -102,7 +102,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start" className="!p-0">
-            <p className="text-sm font-medium text-left text-[#314158] px-3 py-4 border-b border-b-[#CAD5E2] mb-4">
+            <p className="text-sm font-medium text-left text-[#314158] px-3 py-4 border-b border-b-[#CAD5E2] mb-4 min-w-3xs">
               Chat History
             </p>
             <HistoryLinks />
