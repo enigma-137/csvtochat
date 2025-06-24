@@ -71,7 +71,7 @@ export function Header({ onNewChat, chatId }: HeaderProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden gap-1 px-2 cursor-pointer mx-auto bg-slate-100 border-[0.7px] border-slate-200 h-[36px] text-[#1d293d]"
+            className="md:hidden gap-1 pl-1.5 pr-2.5 cursor-pointer mx-auto bg-slate-100 border-[0.7px] border-slate-200 h-[36px] text-[#1d293d]"
             onClick={onNewChat}
           >
             <img src="/new.svg" className="size-9 min-w-[36px]" />
@@ -92,7 +92,7 @@ export function Header({ onNewChat, chatId }: HeaderProps) {
           href="/"
           className="flex items-center md:mt-auto md:mb-2 md:w-full justify-center md:hidden"
         >
-          <img src="/logo.svg" className="size-8" />
+          <img src="/logo.svg" className="size-[22px]" />
         </Link>
       </aside>
       {/* Spacer for mobile header height */}
