@@ -58,7 +58,7 @@ export async function loadChat(id: string): Promise<ChatData | null> {
   const value = await redis.get(`${CHAT_KEY_PREFIX}${id}`);
   if (!value) return null;
   try {
-    return value;
+    return typeof value === "string" ? JSON.parse(value) : (value as ChatData);
   } catch {
     return null;
   }
