@@ -96,7 +96,7 @@ export function Header({ onNewChat, chatId }: HeaderProps) {
         </Link>
       </aside>
       {/* Spacer for mobile header height */}
-      <div className="block md:hidden" style={{ height: 70 }} />
+      <div className="block md:hidden min-h-[70px]" />
     </>
   );
 }
