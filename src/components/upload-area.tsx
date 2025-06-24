@@ -1,7 +1,7 @@
 "use client";
 import Dropzone from "react-dropzone";
 import React from "react";
-import { HeroSection } from "./hero-section";
+import { toast } from "sonner";
 
 interface UploadAreaProps {
   onFileChange: (file: File | null) => void;
@@ -27,12 +27,8 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
             return;
           }
 
-          if (file.size > 15 * 1024 * 1024) {
-            // 10MB in bytes
-            console.log({
-              title: "📁 File Too Large",
-              description: "⚠️ File size must be less than 15MB",
-            });
+          if (file.size > 20 * 1024 * 1024) {
+            toast.warning("⚠️ File size must be less than 20MB");
             return;
           }
           onFileChange(file);

@@ -241,10 +241,10 @@ export function ChatScreen({
     useAutoScroll({ status, isCodeRunning });
 
   return (
-    <div className="min-h-screen bg-white flex flex-col w-full">
+    <div className="min-h-screen bg-white flex flex-col w-full h-screen">
       <Header onNewChat={handleNewChat} chatId={id} />
 
-      <div className="flex flex-col md:ml-[70px]">
+      <div className="flex flex-col md:ml-[70px] h-full">
         {/* Messages */}
         <div
           className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full"

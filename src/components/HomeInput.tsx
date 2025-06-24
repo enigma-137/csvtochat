@@ -50,9 +50,9 @@ export function HomeInput({
               style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}
             >
               <img src="/uploaded-file.svg" alt="" className="w-4 h-4" />
-              <div className="flex justify-center items-center flex-grow-0 flex-shrink-0 relative gap-1.5">
-                <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative gap-1">
-                  <p className="flex-grow-0 flex-shrink-0 w-[100px] text-xs font-medium text-left text-[#1d293d]">
+              <div className="flex justify-center items-center  relative gap-1.5">
+                <div className="flex flex-col justify-start items-start  relative gap-1">
+                  <p className=" w-[100px] text-xs font-medium text-left text-[#1d293d] truncate">
                     {uploadedFile.name}
                   </p>
                 </div>
