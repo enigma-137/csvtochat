@@ -7,6 +7,7 @@ import {
 } from "ai";
 import { generateId } from "ai";
 import { redis, togetherAISDKClient } from "./clients"; // Import your redis client
+import { generateTitlePrompt } from "./prompts";
 const CHAT_KEY_PREFIX = "chat:";
 
 // Extend the Message type to include duration for Redis persistence
@@ -38,19 +39,7 @@ export async function createChat({
   // use userQuestion to generate a title for the chat
   const { text: title } = await generateText({
     model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
-    prompt: `
-You are an expert data scientist assistant that create titles for chat conversations.
-
-You are given a dataset and a question.
-
-The dataset has the following columns: ${
-      csvHeaders?.join(", ") || "[NO HEADERS PROVIDED]"
-    }
-
-The question from the user is: ${userQuestion}
-
-Just return the title of the chat conversation but keep it super short like a maximum of 5 words.
-`,
+    prompt: generateTitlePrompt({ csvHeaders, userQuestion }),
     maxTokens: 100,
   });
 
