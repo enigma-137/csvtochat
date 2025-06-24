@@ -16,7 +16,7 @@ export const extractCsvData = (file: File): Promise<CsvData> => {
       skipEmptyLines: true,
       complete: (results) => {
         const headers = (results.meta.fields || []).map((field) =>
-          field.replace(/"/g, "").trim()
+          field.trim()
         );
         const allRows = results.data as string[][];
         const sampleRows: string[][] = [];
