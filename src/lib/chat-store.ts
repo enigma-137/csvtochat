@@ -20,6 +20,7 @@ type ChatData = {
   csvFileUrl: string | null;
   csvHeaders: string[] | null;
   title: string | null; // inferring the title of the chat based on csvHeaders and first user messages
+  createdAt?: Date;
   // ...future fields
 };
 
@@ -58,6 +59,7 @@ Just return the title of the chat conversation but keep it super short like a ma
     csvHeaders,
     csvFileUrl,
     title,
+    createdAt: new Date(),
   };
   await redis.set(`${CHAT_KEY_PREFIX}${id}`, JSON.stringify(initial));
   return id;

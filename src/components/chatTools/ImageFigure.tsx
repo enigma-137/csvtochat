@@ -35,7 +35,7 @@ export const ImageFigure: React.FC<ImageFigureProps> = ({ imageData }) => {
       </div>
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1e1e1e]/90 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1e1e1e]/90 backdrop-blur-sm px-4 md:px-6"
           style={{ backdropFilter: "blur(8px)" }}
           onClick={handleClose}
         >

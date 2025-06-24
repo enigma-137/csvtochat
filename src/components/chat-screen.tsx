@@ -149,7 +149,10 @@ export function ChatScreen({
 
         // Check for error in outputs
         const errorOutput = Array.isArray(result.outputs)
-          ? result.outputs.find((output: any) => output.type === "error")
+          ? result.outputs.find(
+              (output: any) =>
+                output.type === "error" || output.type === "stderr"
+            )
           : undefined;
         const errorOccurred = Boolean(errorOutput);
         const errorMessage = errorOutput
@@ -264,11 +267,15 @@ export function ChatScreen({
             );
 
             const errorCode = codeResults?.outputs?.find(
-              (result: any) => result.type === "error"
+              (result: any) =>
+                result.type === "error" || result.type === "stderr"
             );
 
             const imagePngBase64 = codeResults?.outputs?.find(
-              (result: any) => result.type === "display_data"
+              (result: any) =>
+                result.type === "display_data" &&
+                result.data &&
+                result.data["image/png"]
             );
 
             const isThisLastMessage = messages.length - 1 === messageIdx;
@@ -323,12 +330,18 @@ export function ChatScreen({
                     {currentMessage.toolCall?.toolInvocation.state ===
                       "result" && (
                       <div className="text-slate-800 text-sm leading-relaxed">
-                        {stdOut && <TerminalOutput data={stdOut.data} />}
+                        {errorCode ? (
+                          <ErrorOutput data={errorCode.data} />
+                        ) : (
+                          <>
+                            {stdOut && <TerminalOutput data={stdOut.data} />}
 
-                        {errorCode && <ErrorOutput data={errorCode.data} />}
-
-                        {imagePngBase64 && (
-                          <ImageFigure imageData={imagePngBase64.data as any} />
+                            {imagePngBase64 && (
+                              <ImageFigure
+                                imageData={imagePngBase64.data as any}
+                              />
+                            )}
+                          </>
                         )}
                       </div>
                     )}

@@ -14,7 +14,11 @@ export async function POST(req: NextRequest) {
       ids.map(async (id: string) => {
         const chat = await loadChat(id);
         if (chat && chat.title) {
-          return { id, title: chat.title };
+          return {
+            id,
+            title: chat.title,
+            createdAt: chat.createdAt || new Date(),
+          };
         } else if (chat) {
           // fallback: use first user message as title
           const userMsg = chat.messages.find((msg) => msg.role === "user");
@@ -24,7 +28,15 @@ export async function POST(req: NextRequest) {
         }
       })
     );
-    return NextResponse.json(results.filter(Boolean));
+
+    return NextResponse.json(
+      results.filter(Boolean).sort((a, b) => {
+        if (!b?.createdAt || !a?.createdAt) return 0;
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      })
+    );
   } catch (e) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
