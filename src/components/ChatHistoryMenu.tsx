@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Drawer,
@@ -83,6 +82,10 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
       </div>
     );
   };
+
+  if (chatLinks.length === 0) {
+    return null;
+  }
 
   return (
     <>
