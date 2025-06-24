@@ -81,3 +81,12 @@ The question from the user is: ${userQuestion}
 Return ONLY the title of the chat conversation, with no quotes or extra text, and keep it super short (maximum 5 words). Do not return anything else.
 `;
 };
+
+export const generateQuestionsPrompt = ({
+  csvHeaders,
+}: {
+  csvHeaders: string[];
+}) =>
+  `Generate 3 insightful questions that can be asked to analyze a CSV file with the following columns: ${csvHeaders.join(
+    ", "
+  )}. Focus on questions that would reveal trends, comparisons,  or insights from the data. Do not include phrases like "in the dataset", "from the data", or "in the CSV file". Provide the questions in the format: {id: string, text: string}.`;

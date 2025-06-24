@@ -23,12 +23,12 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
           const file = acceptedFiles[0];
 
           if (!file) {
-            // TODO if no file meaning user tried to upload a file that is not csv!
+            toast.warning("⚠️ Please upload a CSV file");
             return;
           }
 
-          if (file.size > 20 * 1024 * 1024) {
-            toast.warning("⚠️ File size must be less than 20MB");
+          if (file.size > 30 * 1024 * 1024) {
+            toast.warning("⚠️ File size must be less than 30MB");
             return;
           }
           onFileChange(file);

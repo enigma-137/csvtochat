@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { togetherAISDKClient } from "@/lib/clients";
+import { generateQuestionsPrompt } from "@/lib/prompts";
 
 const questionSchema = z.object({
   id: z.string(),
@@ -27,13 +28,11 @@ export async function POST(req: Request) {
       model: togetherAISDKClient("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
       mode: "json",
       schema: outputSchema,
-      prompt: `Generate 5 insightful questions that can be asked to analyze a CSV file with the following columns: ${columns.join(
-        ", "
-      )}. Focus on questions that would reveal trends, comparisons,  or insights from the data. Do not include phrases like "in the dataset", "from the data", or "in the CSV file". Provide the questions in the format: {id: string, text: string}.`,
+      prompt: generateQuestionsPrompt({ csvHeaders: columns }),
     });
 
     return NextResponse.json(
-      { questions: generatedQuestions },
+      { questions: generatedQuestions.slice(0, 3) },
       { status: 200 }
     );
   } catch (error) {

@@ -1,14 +1,12 @@
 import { useRef, useState, useEffect, RefObject } from "react";
 
-interface UseAutoScrollOptions {
-  status: string;
-  isCodeRunning: boolean;
-}
-
 export function useAutoScroll({
   status,
   isCodeRunning,
-}: UseAutoScrollOptions): {
+}: {
+  status: string;
+  isCodeRunning: boolean;
+}): {
   messagesContainerRef: RefObject<HTMLDivElement | null>;
   messagesEndRef: RefObject<HTMLDivElement | null>;
   isUserAtBottom: boolean;
