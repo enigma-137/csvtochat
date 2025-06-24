@@ -76,7 +76,10 @@ export function ChatInput({
 
           <div className="flex flex-row justify-between">
             {uploadedFile && (
-              <div
+              <a
+                href={uploadedFile.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex flex-row items-center justify-center min-w-[156px] relative overflow-hidden gap-1.5 px-2 py-1.5 rounded-lg max-h-[28px] bg-slate-100 border-[0.5px] border-[#90a1b9]"
                 style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}
               >
@@ -91,7 +94,7 @@ export function ChatInput({
                     </p>
                   </div>
                 </div>
-              </div>
+              </a>
             )}
 
             <div className="flex flex-row gap-2">

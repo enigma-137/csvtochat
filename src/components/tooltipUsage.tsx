@@ -61,9 +61,9 @@ export default function TooltipUsage({
         </button>
       </TooltipTrigger>
       {formattedTime && (
-        <TooltipContent sideOffset={8} className="min-w-[260px] bg-[#1d293d]">
+        <TooltipContent sideOffset={8} className="min-w-[265px] bg-[#1d293d]">
           <div className="flex justify-center items-center gap-2">
-            <p className="text-sm font-medium text-left text-slate-200">
+            <p className="text-sm font-medium text-left text-slate-200 leading-0.5">
               Time remaining until refill:
             </p>
             <p className="text-sm text-left text-white">{formattedTime}</p>

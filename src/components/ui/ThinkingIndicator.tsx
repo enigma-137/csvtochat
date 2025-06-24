@@ -1,7 +1,7 @@
 // Thinking indicator component
 export function ThinkingIndicator() {
   return (
-    <div className="flex items-start justify-start my-4">
+    <div className="flex items-start justify-start my-4 self-start">
       <img
         src="/loading.svg"
         alt="Thinking..."

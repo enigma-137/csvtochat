@@ -301,7 +301,7 @@ export function ChatScreen({
                     )}
                   </>
                 ) : (
-                  <div className="">
+                  <div className="w-full">
                     <div className="text-slate-800 text-sm prose">
                       <MemoizedMarkdown
                         id={currentMessage.id}
@@ -310,7 +310,7 @@ export function ChatScreen({
                     </div>
 
                     {currentMessage.isThinking && (
-                      <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse">
+                      <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse w-full">
                         <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
                           Running code...
                         </h3>
