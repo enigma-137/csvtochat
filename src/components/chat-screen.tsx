@@ -18,6 +18,7 @@ import { DbMessage } from "@/lib/chat-store";
 import { cn, extractCodeFromText, formatLLMTimestamp } from "@/lib/utils";
 import { ErrorBanner } from "./ui/ErrorBanner";
 import { ThinkingIndicator } from "./ui/ThinkingIndicator";
+import ReasoningAccordion from "./ReasoningAccordion";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -65,7 +66,7 @@ export function ChatScreen({
             {
               id: message.id + "_tool_call", // Unique ID for the tool call message
               role: "assistant",
-              content: "Running code...",
+              content: "",
               isThinking: true,
               toolCall: {
                 toolInvocation: {
@@ -282,6 +283,10 @@ export function ChatScreen({
 
             const isUserMessage = currentMessage.role === "user";
 
+            const reasoning = currentMessage.parts.find(
+              (part) => part.type === "reasoning"
+            );
+
             return (
               <div
                 key={currentMessage.id}
@@ -311,6 +316,8 @@ export function ChatScreen({
                   </>
                 ) : (
                   <div className="w-full">
+                    <ReasoningAccordion reasoning={reasoning} />
+
                     <div className="text-slate-800 text-sm prose">
                       <MemoizedMarkdown
                         id={currentMessage.id}
@@ -319,12 +326,12 @@ export function ChatScreen({
                     </div>
 
                     {currentMessage.isThinking && (
-                      <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse w-full">
-                        <h3 className="text-slate-200 text-xs font-semibold px-4 py-2 border-b border-slate-700">
-                          Running code...
-                        </h3>
-                        <CodeRender code="" language="bash" theme="dark" />
-                      </div>
+                      <>
+                        <ThinkingIndicator thought="Running python code" />
+                        <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse w-full">
+                          <CodeRender code="" language="bash" theme="dark" />
+                        </div>
+                      </>
                     )}
 
                     {currentMessage.toolCall?.toolInvocation.state ===

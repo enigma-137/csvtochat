@@ -1,5 +1,5 @@
 // Thinking indicator component
-export function ThinkingIndicator() {
+export function ThinkingIndicator({ thought }: { thought?: string }) {
   return (
     <div className="flex items-start justify-start my-4 self-start">
       <img
@@ -8,7 +8,7 @@ export function ThinkingIndicator() {
         className="size-4 animate-spin"
       />
       <span className="ml-2 text-[#006597] font-semibold text-sm">
-        Thinking <span className="animate-pulse">...</span>
+        {thought || "Thinking"} <span className="animate-pulse">...</span>
       </span>
     </div>
   );

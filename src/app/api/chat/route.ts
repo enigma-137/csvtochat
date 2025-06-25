@@ -4,10 +4,23 @@ import {
   generateId,
   CoreMessage,
   appendResponseMessages,
+  wrapLanguageModel,
+  extractReasoningMiddleware,
 } from "ai";
 import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
 import { limitMessages } from "@/lib/limits";
 import { generateCodePrompt } from "@/lib/prompts";
+
+const models = [
+  {
+    title: "Llama 3.3",
+    model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+  },
+  {
+    title: "Qwen 2.5",
+    model: "Qwen/Qwen2.5-72B-Instruct-Turbo",
+  },
+];
 
 export async function POST(req: Request) {
   const { id, message } = await req.json();
@@ -55,45 +68,61 @@ export async function POST(req: Request) {
   // Start timing
   const start = Date.now();
 
-  const stream = streamText({
-    model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
-    system: generateCodePrompt({
-      csvFileUrl: chat?.csvFileUrl || "",
-      csvHeaders: chat?.csvHeaders || [],
-    }),
-    messages: coreMessagesForStream.filter(
-      (msg) => msg.role !== "system"
-    ) as CoreMessage[],
-    async onFinish({ response }) {
-      // End timing
-      const end = Date.now();
-      const duration = (end - start) / 1000;
+  try {
+    // Create a new DeepSeek R1 model
+    const deepseekR1 = wrapLanguageModel({
+      model: togetherAISDKClient("deepseek-ai/DeepSeek-R1"),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
 
-      if (response.messages.length > 1) {
-        console.log("response.messages", response.messages);
-        return;
-      }
+    const stream = streamText({
+      model: deepseekR1,
+      system: generateCodePrompt({
+        csvFileUrl: chat?.csvFileUrl || "",
+        csvHeaders: chat?.csvHeaders || [],
+      }),
+      messages: coreMessagesForStream.filter(
+        (msg) => msg.role !== "system"
+      ) as CoreMessage[],
+      onError: (error) => {
+        console.error("Error:", error);
+      },
+      async onFinish({ response }) {
+        // End timing
+        const end = Date.now();
+        const duration = (end - start) / 1000;
 
-      const responseMessages = appendResponseMessages({
-        messages: messagesToSave,
-        responseMessages: response.messages,
-      });
+        if (response.messages.length > 1) {
+          console.log("response.messages", response.messages);
+          return;
+        }
 
-      const responseMessage = responseMessages.at(-1);
+        const responseMessages = appendResponseMessages({
+          messages: messagesToSave,
+          responseMessages: response.messages,
+        });
 
-      if (!responseMessage) {
-        return;
-      }
+        const responseMessage = responseMessages.at(-1);
 
-      await saveNewMessage({
-        id,
-        message: {
-          ...responseMessage,
-          duration,
-        },
-      });
-    },
-  });
+        if (!responseMessage) {
+          return;
+        }
 
-  return new Response(stream.toDataStream());
+        await saveNewMessage({
+          id,
+          message: {
+            ...responseMessage,
+            duration,
+          },
+        });
+      },
+    });
+
+    return stream.toDataStreamResponse({
+      sendReasoning: true,
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response("Error generating response", { status: 500 });
+  }
 }

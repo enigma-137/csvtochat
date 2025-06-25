@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -65,18 +65,20 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
           const href = `/chat/${chat.id}`;
           const isActive = pathname === href;
           return (
-            <Link
-              key={chat.id}
-              href={href}
-              onClick={() => setDrawerOpen(false)}
-              className={`text-sm text-left py-2.5 px-6 md:py-2 md:px-4 ${
-                isActive
-                  ? "bg-slate-200 rounded font-medium text-[#0f172b]"
-                  : "text-[#314158]"
-              }`}
-            >
-              {chat.title}
-            </Link>
+            <Fragment key={chat.id}>
+              <Link
+                key={chat.id}
+                href={href}
+                onClick={() => setDrawerOpen(false)}
+                className={`text-sm text-left py-2.5 px-6 md:py-2 md:px-4 ${
+                  isActive
+                    ? "bg-slate-200 rounded font-medium text-[#0f172b]"
+                    : "text-[#314158]"
+                }`}
+              >
+                {chat.title}
+              </Link>
+            </Fragment>
           );
         })}
       </div>
