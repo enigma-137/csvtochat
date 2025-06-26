@@ -2,6 +2,8 @@
 
 import type React from "react";
 import { Button } from "@/components/ui/button";
+import { ModelDropdown } from "./ModelDropdown";
+import { useLLMModel } from "@/hooks/useLLMModel";
 
 export function HomeInput({
   value,
@@ -18,6 +20,8 @@ export function HomeInput({
   onRemoveFile?: () => void;
   placeholder?: string;
 }) {
+  const { selectedModelSlug, setModel, models } = useLLMModel();
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -33,7 +37,15 @@ export function HomeInput({
 
   return (
     <div className="w-full max-w-sm md:max-w-2xl mx-auto">
-      <div className="relative border border-slate-200 rounded-xl p-3">
+      <div className="relative border border-[#cad5e2] border-dashed rounded-lg p-3">
+        <div className="flex flex-row gap-2 mb-2">
+          <ModelDropdown
+            models={models}
+            value={selectedModelSlug}
+            onChange={setModel}
+            className="min-w-[180px]"
+          />
+        </div>
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}

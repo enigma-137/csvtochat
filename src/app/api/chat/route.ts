@@ -10,20 +10,10 @@ import {
 import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
 import { limitMessages } from "@/lib/limits";
 import { generateCodePrompt } from "@/lib/prompts";
-
-const models = [
-  {
-    title: "Llama 3.3",
-    model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-  },
-  {
-    title: "Qwen 2.5",
-    model: "Qwen/Qwen2.5-72B-Instruct-Turbo",
-  },
-];
+import { CHAT_MODELS } from "@/lib/models";
 
 export async function POST(req: Request) {
-  const { id, message } = await req.json();
+  const { id, message, model } = await req.json();
 
   // get from headers X-Auto-Error-Resolved
   const errorResolved = req.headers.get("X-Auto-Error-Resolved");
@@ -68,15 +58,30 @@ export async function POST(req: Request) {
   // Start timing
   const start = Date.now();
 
+  // Determine which model to use
+
+  const defaultModel = CHAT_MODELS.find((m) => m.isDefault)?.model;
+
+  const selectedModelSlug = typeof model === "string" ? model : undefined;
+
+  const selectedModel =
+    (selectedModelSlug &&
+      CHAT_MODELS.find((m) => m.slug === selectedModelSlug)?.model) ||
+    defaultModel;
+
+  if (!selectedModel) {
+    throw new Error("Invalid model selected.");
+  }
+
   try {
-    // Create a new DeepSeek R1 model
-    const deepseekR1 = wrapLanguageModel({
-      model: togetherAISDKClient("deepseek-ai/DeepSeek-R1"),
+    // Create a new model instance based on selectedModel
+    const modelInstance = wrapLanguageModel({
+      model: togetherAISDKClient(selectedModel),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
 
     const stream = streamText({
-      model: deepseekR1,
+      model: modelInstance,
       system: generateCodePrompt({
         csvFileUrl: chat?.csvFileUrl || "",
         csvHeaders: chat?.csvHeaders || [],

@@ -19,6 +19,7 @@ import { cn, extractCodeFromText, formatLLMTimestamp } from "@/lib/utils";
 import { ErrorBanner } from "./ui/ErrorBanner";
 import { ThinkingIndicator } from "./ui/ThinkingIndicator";
 import ReasoningAccordion from "./ReasoningAccordion";
+import { useLLMModel } from "@/hooks/useLLMModel";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -46,13 +47,18 @@ export function ChatScreen({
   id?: string;
   initialMessages?: DbMessage[];
 }) {
+  const { selectedModelSlug } = useLLMModel();
   const router = useRouter();
   const { messages, setMessages, append, stop, status } = useChat({
     id, // use the provided chat ID
     initialMessages: initialMessages || [], // initial messages if provided
     sendExtraMessageFields: true, // send id and createdAt for each message
     experimental_prepareRequestBody({ messages, id }) {
-      return { message: messages[messages.length - 1].content, id };
+      return {
+        message: messages[messages.length - 1].content,
+        id,
+        model: selectedModelSlug,
+      };
     },
     // Fake tool call
     onFinish: async (message) => {

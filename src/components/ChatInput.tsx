@@ -5,6 +5,9 @@ import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import TooltipUsage from "./tooltipUsage";
 import { useUserLimits } from "@/hooks/useUserLimits";
+import { ModelDropdown } from "./ModelDropdown";
+import { CHAT_MODELS } from "@/lib/models";
+import { useLLMModel } from "@/hooks/useLLMModel";
 
 export function ChatInput({
   isLLMAnswering,
@@ -31,6 +34,8 @@ export function ChatInput({
     loading: limitsLoading,
     refetch,
   } = useUserLimits();
+
+  const { selectedModelSlug, setModel, models } = useLLMModel();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -63,7 +68,15 @@ export function ChatInput({
     <>
       <div className="h-[110px] w-full md:hidden" />
       <div className="w-full md:max-w-2xl mx-auto fixed bottom-0 bg-white md:relative">
-        <div className="relative border border-slate-200 rounded-xl p-3 md:mb-4">
+        <div className="relative border border-[#cad5e2] border-dashed rounded-lg p-3 md:mb-4">
+          <div className="flex flex-row gap-2 mb-2">
+            <ModelDropdown
+              models={models}
+              value={selectedModelSlug}
+              onChange={setModel}
+              className="min-w-[180px]"
+            />
+          </div>
           <textarea
             ref={textareaRef}
             value={value}
@@ -76,14 +89,11 @@ export function ChatInput({
 
           <div className="flex flex-row justify-between">
             {uploadedFile && (
-              <a
-                href={uploadedFile.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-row items-center justify-center min-w-[156px] relative overflow-hidden gap-1.5 px-2 py-1.5 rounded-lg max-h-[28px] bg-slate-100 border-[0.5px] border-[#90a1b9]"
+              <div
+                className="flex flex-row items-center justify-center min-w-[156px] relative overflow-hidden gap-2.5 px-2 py-1.5 rounded-lg max-h-[28px] bg-slate-100 border-[0.5px] border-[#90a1b9]"
                 style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}
               >
-                <img src="/uploaded-file.svg" alt="" className="w-4 h-4" />
+                <img src="/new-uploaded-file.svg" alt="" className="w-4 h-4" />
                 <div className="flex justify-center items-center flex-grow-0 flex-shrink-0 relative gap-1.5">
                   <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative gap-1">
                     <p
@@ -94,7 +104,10 @@ export function ChatInput({
                     </p>
                   </div>
                 </div>
-              </a>
+                <button className="p-2 cursor-pointer">
+                  <img src="/3dots.svg" alt="" className="w-2.5 h-2.5" />
+                </button>
+              </div>
             )}
 
             <div className="flex flex-row gap-2">
