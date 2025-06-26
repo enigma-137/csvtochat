@@ -322,7 +322,13 @@ export function ChatScreen({
                   </>
                 ) : (
                   <div className="w-full">
-                    <ReasoningAccordion reasoning={reasoning} />
+                    <ReasoningAccordion
+                      reasoning={reasoning}
+                      isReasoningOver={
+                        !!currentMessage.content &&
+                        currentMessage.content.length > 0
+                      }
+                    />
 
                     <div className="text-slate-800 text-sm prose">
                       <MemoizedMarkdown

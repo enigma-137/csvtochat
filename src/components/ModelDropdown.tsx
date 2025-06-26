@@ -7,6 +7,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ChatModel } from "@/lib/models";
+import { cn } from "@/lib/utils";
 
 export function ModelDropdown({
   models,
@@ -21,7 +22,7 @@ export function ModelDropdown({
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={className}>
+      <SelectTrigger className={cn(className, "cursor-pointer")}>
         <SelectValue placeholder="Select model" />
       </SelectTrigger>
       <SelectContent>

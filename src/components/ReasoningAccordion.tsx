@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import {
   Accordion,
@@ -28,13 +28,31 @@ type ReasoningUIPart = {
 
 export default function ReasoningAccordion({
   reasoning,
+  isReasoningOver = false,
 }: {
   reasoning?: ReasoningUIPart;
+  isReasoningOver?: boolean;
 }) {
+  const [open, setOpen] = useState(!isReasoningOver);
+
+  useEffect(() => {
+    if (!isReasoningOver) {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  }, [isReasoningOver]);
+
   if (!reasoning?.details?.length) return null;
   return (
     <div className="my-4">
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        value={open ? "reasoning" : undefined}
+        onValueChange={(v) => setOpen(v === "reasoning")}
+      >
         <AccordionItem value="reasoning">
           <AccordionTrigger className="max-w-[220px] inline-flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-800/50 w-full !no-underline">
             <span>Thought for a few seconds...</span>
