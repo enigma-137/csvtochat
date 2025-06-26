@@ -1,4 +1,11 @@
-import { useState } from "react";
+import { Fragment } from "react";
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 
 type ReasoningUIPart = {
   type: "reasoning";
@@ -24,47 +31,27 @@ export default function ReasoningAccordion({
 }: {
   reasoning?: ReasoningUIPart;
 }) {
-  const [expanded, setExpanded] = useState(false);
   if (!reasoning?.details?.length) return null;
   return (
-    <div className="my-4 max-w-[480px]">
-      <button
-        className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-[#f8fafc] border border-[#e2e8f0] text-xs text-[#7b8794] hover:bg-[#f1f5f9] transition-colors shadow-sm"
-        onClick={() => setExpanded((e) => !e)}
-        aria-expanded={expanded}
-      >
-        <span
-          className="inline-block transition-transform duration-200"
-          style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}
-        >
-          ▶
-        </span>
-        {expanded ? "Full thought" : "Thought for a few seconds..."}
-      </button>
-      <div
-        className="overflow-hidden transition-all duration-300"
-        style={{
-          maxHeight: expanded ? 500 : 0,
-          opacity: expanded ? 1 : 0,
-          padding: expanded ? "0.5em 0.5em 0.5em 2em" : "0 0.5em",
-          background: "#f8fafc",
-          borderRadius: "0 0 8px 8px",
-        }}
-      >
-        {expanded && (
-          <div className="flex flex-col gap-1 text-xs text-[#7b8794]">
-            {reasoning.details.map((detail: any, idx: number) =>
-              detail.type === "text" ? (
-                <span key={idx}>{detail.text}</span>
-              ) : (
-                <span key={idx} className="italic text-[#cbd5e1]">
-                  &lt;redacted&gt;
-                </span>
-              )
-            )}
-          </div>
-        )}
-      </div>
+    <div className="my-4">
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="reasoning">
+          <AccordionTrigger className="max-w-[220px] inline-flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-800/50 w-full !no-underline">
+            <span>Thought for a few seconds...</span>
+          </AccordionTrigger>
+          <AccordionContent
+            className="overflow-hidden whitespace-pre-wrap border-l-2 pl-3 text-xs font-medium leading-5 border-gray-200 text-gray-400 dark:border-slate-800 dark:text-slate-400 -my-4"
+            style={{ padding: "0.5em 0.5em 0.5em 0" }}
+          >
+            {reasoning.details.map((detail: any, idx: number) => {
+              if (detail.type === "redacted") {
+                return <Fragment key={idx}>&lt;redacted&gt;</Fragment>;
+              }
+              return <Fragment key={idx}>{detail.text}</Fragment>;
+            })}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

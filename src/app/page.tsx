@@ -117,7 +117,7 @@ export default function CSVToChat() {
       <Header onNewChat={startNewChat} />
 
       <div className="flex flex-col items-center px-6">
-        <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 max-w-[655px] mx-auto">
+        <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 max-w-[655px] mx-auto w-full">
           <HeroSection />
 
           <UploadArea
