@@ -80,6 +80,8 @@ export async function POST(req: Request) {
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
 
+    // TODO: handling context length here cause coreMessagesForStream could be too long for the currently selected model?
+
     const stream = streamText({
       model: modelInstance,
       system: generateCodePrompt({

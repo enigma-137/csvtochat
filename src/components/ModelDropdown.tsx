@@ -2,7 +2,6 @@ import React from "react";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -20,15 +19,50 @@ export function ModelDropdown({
   onChange: (model: string) => void;
   className?: string;
 }) {
+  // Find the selected model for displaying logo in the trigger
+  const selectedModel = models.find((m) => m.slug === value);
+
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={cn(className, "cursor-pointer")}>
-        <SelectValue placeholder="Select model" />
+      <SelectTrigger
+        className={cn(
+          className,
+          "flex flex-row justify-betweem items-center overflow-hidden gap-2.5 px-2 py-1.5 rounded bg-white !border-[0.5px] !border-[#90a1b9] !h-[28px]",
+          "cursor-pointer"
+        )}
+        style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}
+      >
+        <span className="flex items-center gap-2">
+          {selectedModel && (
+            <img
+              src={selectedModel.logo}
+              alt={selectedModel.title}
+              width={16}
+              height={16}
+              className="w-4 h-4 object-contain"
+            />
+          )}
+          <span className="text-sm text-left text-[#1d293d] truncate">
+            {selectedModel ? <>{selectedModel.title}</> : "Select model"}
+          </span>
+        </span>
       </SelectTrigger>
       <SelectContent>
         {models.map((m) => (
           <SelectItem key={m.model} value={m.slug}>
-            {m.title}
+            <span className="flex items-center gap-2">
+              <img
+                src={m.logo}
+                alt={m.title}
+                width={16}
+                height={16}
+                className="w-4 h-4 object-contain"
+              />
+              <span className="text-sm text-left text-[#1d293d] truncate">
+                {m.title}
+                {m.hasReasoning && <span title="Has reasoning"> 🧠</span>}
+              </span>
+            </span>
           </SelectItem>
         ))}
       </SelectContent>

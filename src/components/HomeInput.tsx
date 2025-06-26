@@ -38,14 +38,6 @@ export function HomeInput({
   return (
     <div className="w-full max-w-sm md:max-w-2xl mx-auto">
       <div className="relative border border-[#cad5e2] border-dashed rounded-lg p-3">
-        <div className="flex flex-row gap-2 mb-2">
-          <ModelDropdown
-            models={models}
-            value={selectedModelSlug}
-            onChange={setModel}
-            className="min-w-[180px]"
-          />
-        </div>
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -56,6 +48,13 @@ export function HomeInput({
         />
 
         <div className="flex flex-row justify-between">
+          <ModelDropdown
+            models={models}
+            value={selectedModelSlug}
+            onChange={setModel}
+            className="min-w-[180px]"
+          />
+
           {uploadedFile && (
             <div
               className="flex flex-row items-center justify-center min-w-[156px] relative overflow-hidden gap-1.5 px-2 py-1.5 rounded-lg max-h-[44px] bg-slate-100 border-[0.5px] border-[#90a1b9] md:px-4 md:py-3.5"
