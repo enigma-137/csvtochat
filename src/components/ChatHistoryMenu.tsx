@@ -22,6 +22,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   const [chatLinks, setChatLinks] = useState<{ id: string; title: string }[]>(
     []
   );
+  const [isLoading, setLoading] = useState(true);
 
   // Track visited chat ids in localStorage
   useEffect(() => {
@@ -45,7 +46,10 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
     try {
       ids = JSON.parse(localStorage.getItem(key) || "[]");
     } catch {}
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      setLoading(false);
+      return;
+    }
     // Fetch chat metadata from backend
     fetch("/api/chat/history", {
       method: "POST",
@@ -55,7 +59,8 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setChatLinks(data);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const HistoryLinks = () => {
@@ -85,8 +90,34 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-[36px] items-center justify-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {}}
+          className="cursor-progress !p-1 mx-auto"
+        >
+          <img src="/history.svg" className="size-9" />
+        </Button>
+      </div>
+    );
+  }
+
   if (chatLinks.length === 0) {
-    return null;
+    return (
+      <div className="flex h-[36px] items-center justify-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled
+          className="cursor-not-allowed !p-1 mx-auto"
+        >
+          <img src="/history.svg" className="size-9" />
+        </Button>
+      </div>
+    );
   }
 
   return (
