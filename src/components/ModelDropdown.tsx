@@ -12,12 +12,10 @@ export function ModelDropdown({
   models,
   value,
   onChange,
-  className,
 }: {
   models: ChatModel[];
   value?: string;
   onChange: (model: string) => void;
-  className?: string;
 }) {
   // Find the selected model for displaying logo in the trigger
   const selectedModel = models.find((m) => m.slug === value);
@@ -26,8 +24,7 @@ export function ModelDropdown({
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger
         className={cn(
-          className,
-          "flex flex-row justify-betweem items-center overflow-hidden gap-2.5 px-2 py-1.5 rounded bg-white !border-[0.5px] !border-[#90a1b9] !h-[28px]",
+          "flex flex-row justify-betweem items-center overflow-hidden gap-2.5 px-2 py-1.5 rounded-sm bg-white !border-[0.5px] !border-[#90a1b9] !h-[28px] min-w-[148px]",
           "cursor-pointer"
         )}
         style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}

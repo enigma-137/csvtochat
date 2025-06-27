@@ -4,7 +4,6 @@ import type React from "react";
 
 import { useState, useCallback } from "react";
 import { Header } from "@/components/header";
-import { HomeInput } from "@/components/HomeInput";
 import { UploadArea } from "@/components/upload-area";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 import { extractCsvData } from "@/lib/csvUtils";
@@ -12,6 +11,9 @@ import { HeroSection } from "@/components/hero-section";
 import { redirect } from "next/navigation";
 import { createChat } from "@/lib/chat-store";
 import { useS3Upload } from "next-s3-upload";
+import { PromptInput } from "@/components/PromptInput";
+import { toast } from "sonner";
+import { useLLMModel } from "@/hooks/useLLMModel";
 
 export interface SuggestedQuestion {
   id: string;
@@ -20,6 +22,8 @@ export interface SuggestedQuestion {
 
 export default function CSVToChat() {
   const { uploadToS3 } = useS3Upload();
+
+  const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState<
     SuggestedQuestion[]
@@ -88,12 +92,12 @@ export default function CSVToChat() {
     if (!text) return;
 
     if (!uploadedFileUrl) {
-      alert("Please upload a CSV file first.");
+      toast.warning("Please upload a CSV file first.");
       return;
     }
 
     if (csvHeaders.length === 0) {
-      alert("Please upload a CSV with headers.");
+      toast.warning("Please upload a CSV with headers.");
       return;
     }
 
@@ -104,7 +108,7 @@ export default function CSVToChat() {
       csvHeaders: csvHeaders,
       csvFileUrl: uploadedFileUrl,
     });
-    redirect(`/chat/${id}`);
+    redirect(`/chat/${id}?model=${selectedModelSlug}`);
   };
 
   const startNewChat = () => {
@@ -116,7 +120,7 @@ export default function CSVToChat() {
     <div className="min-h-screen bg-white">
       <Header onNewChat={startNewChat} />
 
-      <div className="flex flex-col items-center px-6">
+      <div className="flex flex-col items-center px-4 md:px-6">
         <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 max-w-[655px] mx-auto w-full">
           <HeroSection />
 
@@ -128,15 +132,20 @@ export default function CSVToChat() {
 
         {/* Large Input Area */}
         {localFile && (
-          <HomeInput
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={() => {
-              handleSendMessage(inputValue);
-            }}
-            uploadedFile={localFile}
-            onRemoveFile={removeFile}
-          />
+          <div className="w-full max-w-sm md:max-w-2xl mx-auto">
+            <PromptInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={() => {
+                handleSendMessage(inputValue);
+              }}
+              uploadedFile={{
+                name: localFile.name,
+              }}
+              onRemoveFile={removeFile}
+              textAreaClassName="h-[88px] md:h-[100px]"
+            />
+          </div>
         )}
 
         {/* Processing State */}
