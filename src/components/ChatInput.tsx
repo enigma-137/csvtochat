@@ -41,7 +41,7 @@ export function ChatInput({
   return (
     <>
       <div className="h-[130px] w-full md:hidden" />
-      <div className="w-full md:max-w-2xl mx-auto fixed bottom-0 bg-white md:relative">
+      <div className="w-full md:max-w-2xl mx-auto fixed bottom-0 bg-white md:relative pb-4">
         <PromptInput
           value={value}
           onChange={onChange}
