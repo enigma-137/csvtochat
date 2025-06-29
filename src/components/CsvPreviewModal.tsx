@@ -31,13 +31,7 @@ export function CsvPreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay />
-      <DialogContent
-        className="w-full max-w-none md:max-w-[80vw] mx-auto p-4 bg-white rounded shadow-lg flex flex-col"
-        style={{
-          width: "80vw",
-          maxWidth: "80vw",
-        }}
-      >
+      <DialogContent className="w-full max-w-none md:max-w-[670px] mx-auto p-4 bg-white rounded shadow-lg flex flex-col">
         <DialogTitle>Preview CSV File</DialogTitle>
         <div className="overflow-x-auto overflow-y-auto mt-4 flex-1">
           <Table>
