@@ -33,13 +33,11 @@ export default function ReasoningAccordion({
   reasoning?: ReasoningUIPart;
   isReasoningOver?: boolean;
 }) {
-  const [open, setOpen] = useState(!isReasoningOver);
+  const [open, setOpen] = useState<string | undefined>("reasoning");
 
   useEffect(() => {
-    if (!isReasoningOver) {
-      setOpen(true);
-    } else {
-      setOpen(false);
+    if (isReasoningOver) {
+      setOpen(undefined);
     }
   }, [isReasoningOver]);
 
@@ -50,8 +48,8 @@ export default function ReasoningAccordion({
         type="single"
         collapsible
         className="w-full"
-        value={open ? "reasoning" : undefined}
-        onValueChange={(v) => setOpen(v === "reasoning")}
+        value={open}
+        onValueChange={setOpen}
       >
         <AccordionItem value="reasoning">
           <AccordionTrigger className="max-w-[220px] inline-flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-800/50 w-full !no-underline">
