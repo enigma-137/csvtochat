@@ -44,7 +44,7 @@ export const GithubBanner: React.FC<GithubBannerProps> = ({
       href="https://github.com/nutlope/roomgpt"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed w-full max-w-[1440px] h-[34px] flex items-center overflow-hidden bg-[#1d293d] border-b border-slate-200 px-4 justify-center cursor-pointer z-20"
+      className="fixed w-full h-[34px] flex items-center overflow-hidden bg-[#1d293d] border-b border-slate-200 px-4 justify-center cursor-pointer z-20"
     >
       <div className="flex items-center bg-[#314158] h-[28px] px-3 rounded mr-4">
         <img src="/star.svg" alt="star" className="size-[18px]" />
