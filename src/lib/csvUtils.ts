@@ -6,7 +6,7 @@ export interface CsvData {
    * Represents sample rows from the CSV file. Each inner array is a row, and each string is a cell value.
    * For example, `[["Alice", "30"], ["Bob", "24"]]`
    */
-  sampleRows: string[][];
+  sampleRows: { [key: string]: string }[];
 }
 
 export const extractCsvData = (file: File): Promise<CsvData> => {
@@ -18,8 +18,8 @@ export const extractCsvData = (file: File): Promise<CsvData> => {
         const headers = (results.meta.fields || []).map((field) =>
           field.trim()
         );
-        const allRows = results.data as string[][];
-        const sampleRows: string[][] = [];
+        const allRows = results.data as { [key: string]: string }[];
+        const sampleRows: { [key: string]: string }[] = [];
 
         if (allRows.length <= 4) {
           sampleRows.push(...allRows);

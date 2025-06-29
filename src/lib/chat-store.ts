@@ -1,10 +1,5 @@
 "use server";
-import {
-  Message as AIMsg,
-  CoreAssistantMessage,
-  CoreToolMessage,
-  generateText,
-} from "ai";
+import { Message as AIMsg, generateText } from "ai";
 import { generateId } from "ai";
 import { redis, togetherAISDKClient } from "./clients"; // Import your redis client
 import { generateTitlePrompt } from "./prompts";
@@ -20,7 +15,7 @@ type ChatData = {
   messages: DbMessage[];
   csvFileUrl: string | null;
   csvHeaders: string[] | null;
-  csvRows: string[][] | null;
+  csvRows: { [key: string]: string }[] | null;
   title: string | null; // inferring the title of the chat based on csvHeaders and first user messages
   createdAt?: Date;
   // ...future fields
@@ -34,7 +29,7 @@ export async function createChat({
 }: {
   userQuestion: string;
   csvHeaders: string[];
-  csvRows: string[][];
+  csvRows: { [key: string]: string }[];
   csvFileUrl: string;
 }): Promise<string> {
   const id = generateId();

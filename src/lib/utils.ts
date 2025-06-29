@@ -36,3 +36,10 @@ export function extractCodeFromText(text: string) {
   const match = codeRegex.exec(text);
   return match ? match[1] : null;
 }
+
+export type UploadedFile = {
+  name?: string;
+  url?: string;
+  csvHeaders?: string[];
+  csvRows?: { [key: string]: string }[];
+};

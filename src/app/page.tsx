@@ -31,7 +31,7 @@ export default function CSVToChat() {
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [csvRows, setCsvRows] = useState<string[][]>([]);
+  const [csvRows, setCsvRows] = useState<{ [key: string]: string }[]>([]);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
 
   const handleFileUpload = useCallback(async (file: File | null) => {

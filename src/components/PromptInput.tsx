@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ModelDropdown } from "./ModelDropdown";
 import { useLLMModel } from "@/hooks/useLLMModel";
 import { useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { cn, UploadedFile } from "@/lib/utils";
 import { DropdownFileActions } from "./DropdownFileActions";
 
 export function PromptInput({
@@ -24,12 +24,7 @@ export function PromptInput({
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
-  uploadedFile?: {
-    name?: string;
-    url?: string;
-    csvHeaders?: string[];
-    csvRows?: string[][];
-  };
+  uploadedFile?: UploadedFile;
   placeholder?: string;
 }) {
   const { selectedModelSlug, setModel, models } = useLLMModel();

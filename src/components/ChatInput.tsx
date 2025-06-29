@@ -3,6 +3,7 @@
 import type React from "react";
 import { useUserLimits } from "@/hooks/useUserLimits";
 import { PromptInput } from "./PromptInput";
+import { UploadedFile } from "@/lib/utils";
 
 export function ChatInput({
   isLLMAnswering,
@@ -18,11 +19,7 @@ export function ChatInput({
   onChange: (value: string) => void;
   onSend: () => void;
   onStopLLM: () => void;
-  uploadedFile?: {
-    url: string;
-    csvHeaders?: string[];
-    csvRows?: string[][];
-  };
+  uploadedFile?: UploadedFile;
   placeholder?: string;
 }) {
   const {

@@ -15,7 +15,12 @@ import { ErrorOutput } from "./chatTools/ErrorOutput";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { useDraftedInput } from "../hooks/useDraftedInput";
 import { DbMessage } from "@/lib/chat-store";
-import { cn, extractCodeFromText, formatLLMTimestamp } from "@/lib/utils";
+import {
+  cn,
+  extractCodeFromText,
+  formatLLMTimestamp,
+  UploadedFile,
+} from "@/lib/utils";
 import { ErrorBanner } from "./ui/ErrorBanner";
 import { ThinkingIndicator } from "./ui/ThinkingIndicator";
 import ReasoningAccordion from "./ReasoningAccordion";
@@ -41,11 +46,7 @@ export function ChatScreen({
   id,
   initialMessages,
 }: {
-  uploadedFile: {
-    url: string;
-    csvHeaders?: string[];
-    csvRows?: string[][];
-  };
+  uploadedFile: UploadedFile;
   id?: string;
   initialMessages?: DbMessage[];
 }) {
