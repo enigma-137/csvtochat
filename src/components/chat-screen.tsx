@@ -25,6 +25,7 @@ import { ErrorBanner } from "./ui/ErrorBanner";
 import { ThinkingIndicator } from "./ui/ThinkingIndicator";
 import ReasoningAccordion from "./ReasoningAccordion";
 import { useLLMModel } from "@/hooks/useLLMModel";
+import { CodeRunning } from "./chatTools/CodeRunning";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -340,14 +341,7 @@ export function ChatScreen({
                       />
                     </div>
 
-                    {currentMessage.isThinking && (
-                      <>
-                        <ThinkingIndicator thought="Running python code" />
-                        <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse w-full">
-                          <CodeRender code="" language="bash" theme="dark" />
-                        </div>
-                      </>
-                    )}
+                    {currentMessage.isThinking && <CodeRunning />}
 
                     {currentMessage.toolCall?.toolInvocation.state ===
                       "result" && (
