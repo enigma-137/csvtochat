@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }
 
     const { object: generatedQuestions } = await generateObject({
-      model: togetherAISDKClient("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
+      model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
       mode: "json",
       schema: outputSchema,
       prompt: generateQuestionsPrompt({ csvHeaders: columns }),

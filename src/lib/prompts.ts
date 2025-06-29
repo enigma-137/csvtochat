@@ -88,6 +88,14 @@ export const generateQuestionsPrompt = ({
 }: {
   csvHeaders: string[];
 }) =>
-  `Generate 3 insightful questions that can be asked to analyze a CSV file with the following columns: ${csvHeaders.join(
-    ", "
-  )}. Focus on questions that would reveal trends, comparisons,  or insights from the data. Do not include phrases like "in the dataset", "from the data", or "in the CSV file". Provide the questions in the format: {id: string, text: string}.`;
+  `Generate 3 insightful questions that can be asked to analyze a CSV file with the following columns:
+   ${csvHeaders.join(", ")}. 
+   
+  Focus on questions that would reveal trends, comparisons, or insights from the data.
+  
+  Each question must be direct, concise, and short enough to fit in a single row. 
+  
+  Do not include phrases like "in the dataset", "from the data", or "in the CSV file". 
+  
+  Provide the questions in the format: {id: string, text: string}.
+`;
