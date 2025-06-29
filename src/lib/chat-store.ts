@@ -20,6 +20,7 @@ type ChatData = {
   messages: DbMessage[];
   csvFileUrl: string | null;
   csvHeaders: string[] | null;
+  csvRows: string[][] | null;
   title: string | null; // inferring the title of the chat based on csvHeaders and first user messages
   createdAt?: Date;
   // ...future fields
@@ -28,10 +29,12 @@ type ChatData = {
 export async function createChat({
   userQuestion,
   csvHeaders,
+  csvRows,
   csvFileUrl,
 }: {
   userQuestion: string;
   csvHeaders: string[];
+  csvRows: string[][];
   csvFileUrl: string;
 }): Promise<string> {
   const id = generateId();
@@ -46,6 +49,7 @@ export async function createChat({
   const initial: ChatData = {
     messages: [],
     csvHeaders,
+    csvRows,
     csvFileUrl,
     title,
     createdAt: new Date(),
@@ -86,6 +90,7 @@ export async function saveNewMessage({
     const newChat: ChatData = {
       messages: [message],
       csvHeaders: null,
+      csvRows: null,
       csvFileUrl: null,
       title: null,
     };

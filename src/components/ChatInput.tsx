@@ -20,6 +20,8 @@ export function ChatInput({
   onStopLLM: () => void;
   uploadedFile?: {
     url: string;
+    csvHeaders?: string[];
+    csvRows?: string[][];
   };
   placeholder?: string;
 }) {
@@ -43,11 +45,13 @@ export function ChatInput({
       <div className="h-[130px] w-full md:hidden" />
       <div className="w-full md:max-w-2xl mx-auto fixed bottom-0 bg-white md:relative pb-4">
         <PromptInput
+          isLLMAnswering={isLLMAnswering}
           value={value}
           onChange={onChange}
           onSend={handleSendMessage}
           uploadedFile={uploadedFile}
           placeholder={placeholder}
+          onStopLLM={onStopLLM}
         />
       </div>
     </>

@@ -31,6 +31,7 @@ export default function CSVToChat() {
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
 
   const handleFileUpload = useCallback(async (file: File | null) => {
@@ -41,13 +42,14 @@ export default function CSVToChat() {
       try {
         const { headers, sampleRows } = await extractCsvData(file);
 
-        if (headers.length === 0) {
+        if (headers.length === 0 || sampleRows.length === 0) {
           alert("Please upload a CSV with headers.");
           setLocalFile(null);
           setIsProcessing(false);
           return;
         }
 
+        setCsvRows(sampleRows);
         setCsvHeaders(headers);
 
         const uploadPromise = uploadToS3(file);
@@ -78,11 +80,6 @@ export default function CSVToChat() {
     }
   }, []);
 
-  const removeFile = () => {
-    setLocalFile(null);
-    setSuggestedQuestions([]);
-  };
-
   const handleSuggestionClick = (question: string) => {
     handleSendMessage(question);
   };
@@ -101,18 +98,25 @@ export default function CSVToChat() {
       return;
     }
 
+    if (csvRows.length === 0) {
+      toast.warning("Please upload a CSV with data.");
+      return;
+    }
+
     localStorage.setItem("pendingMessage", text);
 
     const id = await createChat({
       userQuestion: text, // it's not stored in db here just used for chat title!
       csvHeaders: csvHeaders,
       csvFileUrl: uploadedFileUrl,
+      csvRows: csvRows,
     });
     redirect(`/chat/${id}?model=${selectedModelSlug}`);
   };
 
   const startNewChat = () => {
-    removeFile();
+    setLocalFile(null);
+    setSuggestedQuestions([]);
     setInputValue("");
   };
 
@@ -142,8 +146,9 @@ export default function CSVToChat() {
               uploadedFile={{
                 name: localFile.name,
               }}
-              onRemoveFile={removeFile}
               textAreaClassName="h-[88px] md:h-[100px]"
+              isLLMAnswering={false}
+              onStopLLM={() => {}}
             />
           </div>
         )}

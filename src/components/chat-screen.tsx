@@ -43,6 +43,8 @@ export function ChatScreen({
 }: {
   uploadedFile: {
     url: string;
+    csvHeaders?: string[];
+    csvRows?: string[][];
   };
   id?: string;
   initialMessages?: DbMessage[];
@@ -407,6 +409,8 @@ export function ChatScreen({
           uploadedFile={
             uploadedFile && {
               url: uploadedFile.url,
+              csvHeaders: uploadedFile.csvHeaders,
+              csvRows: uploadedFile.csvRows,
             }
           }
           onStopLLM={() => {

@@ -45,6 +45,8 @@ export default async function Page({
       initialMessages={chat?.messages}
       uploadedFile={{
         url: chat?.csvFileUrl || "",
+        csvHeaders: chat?.csvHeaders || [],
+        csvRows: chat?.csvRows || [],
       }}
     />
   );
