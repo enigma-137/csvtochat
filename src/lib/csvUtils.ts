@@ -39,9 +39,6 @@ export const extractCsvData = (file: File): Promise<CsvData> => {
           }
         }
 
-        console.log("CSV Headers:", headers);
-        console.log("CSV Sample Rows:", sampleRows);
-
         resolve({ headers, sampleRows });
       },
       error: (error) => {

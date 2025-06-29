@@ -125,6 +125,8 @@ function CSVToChatClient({ startNewChat }: { startNewChat: () => void }) {
             }}
             uploadedFile={{
               name: localFile.name,
+              csvHeaders: csvHeaders,
+              csvRows: csvRows,
             }}
             textAreaClassName="h-[88px] md:h-[100px]"
             isLLMAnswering={false}
