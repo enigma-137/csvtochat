@@ -87,6 +87,7 @@ export async function POST(req: Request) {
       system: generateCodePrompt({
         csvFileUrl: chat?.csvFileUrl || "",
         csvHeaders: chat?.csvHeaders || [],
+        csvRows: chat?.csvRows || [],
       }),
       messages: coreMessagesForStream.filter(
         (msg) => msg.role !== "system"
@@ -120,6 +121,7 @@ export async function POST(req: Request) {
           message: {
             ...responseMessage,
             duration,
+            model: selectedModel,
           },
         });
       },

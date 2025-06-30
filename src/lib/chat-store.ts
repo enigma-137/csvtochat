@@ -8,6 +8,7 @@ const CHAT_KEY_PREFIX = "chat:";
 // Extend the Message type to include duration for Redis persistence
 export type DbMessage = AIMsg & {
   duration?: number;
+  model?: string; // which model was used to generate this message
   isAutoErrorResolution?: boolean; // if true then this message is an automatic error resolution prompt
 };
 

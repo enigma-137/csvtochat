@@ -1,10 +1,26 @@
 export const generateCodePrompt = ({
   csvFileUrl,
   csvHeaders,
+  csvRows,
 }: {
   csvFileUrl?: string;
   csvHeaders?: string[];
+  csvRows?: { [key: string]: string }[];
 }) => {
+  // Prepare sample rows as a markdown table if available
+  let sampleRowsSection = "";
+  if (csvRows && csvRows.length > 0 && csvHeaders && csvHeaders.length > 0) {
+    const sampleRows = csvRows.slice(0, 3);
+    const headerRow = `| ${csvHeaders.join(" | ")} |`;
+    const separatorRow = `|${csvHeaders.map(() => "---").join("|")}|`;
+    const dataRows = sampleRows
+      .map((row) => `| ${csvHeaders.map((h) => row[h] ?? "").join(" | ")} |`)
+      .join("\n");
+    sampleRowsSection = `\n\nHere are a few sample rows from the dataset:\n\n${headerRow}\n${separatorRow}\n${dataRows}`;
+  }
+
+  console.log("sampleRowsSection", sampleRowsSection);
+
   return `
 You are an expert data scientist assistant that writes python code to answer questions about a dataset.
 
@@ -16,6 +32,7 @@ The dataset is available at the following S3 URL: ${
 The dataset has the following columns: ${
     csvHeaders?.join(", ") || "[NO HEADERS PROVIDED]"
   }
+${sampleRowsSection}
 
 You must always write python code that:
 - Downloads the CSV from the provided S3 URL (using requests or pandas.read_csv).
