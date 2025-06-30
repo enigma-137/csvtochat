@@ -43,3 +43,5 @@ export type UploadedFile = {
   csvHeaders?: string[];
   csvRows?: { [key: string]: string }[];
 };
+
+export const APP_NAME = "CSV2Chat";

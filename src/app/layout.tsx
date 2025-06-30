@@ -3,6 +3,7 @@ import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { UserLimitsProvider } from "@/hooks/UserLimitsContext";
+import { APP_NAME } from "@/lib/utils";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
@@ -10,7 +11,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "CSV2Chat",
+  title: `${APP_NAME}`,
   description: "Talk with your CSV with Together.ai",
   openGraph: {
     images: ["https://csvtochat.com/og.jpg"],

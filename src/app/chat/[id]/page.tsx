@@ -1,6 +1,7 @@
 import { loadChat } from "@/lib/chat-store";
 import { ChatScreen } from "@/components/chat-screen";
 import type { Metadata } from "next";
+import { APP_NAME } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -11,16 +12,16 @@ export async function generateMetadata({
   const chat = await loadChat(id);
   if (!chat) {
     return {
-      title: "Chat not found | CSV2Chat",
+      title: `Chat not found | ${APP_NAME}`,
       description: "No chat found for this ID.",
     };
   }
   return {
     title:
-      chat.title ||
+      `${chat.title} | ${APP_NAME}` ||
       `Chat "${
         chat.messages.find((msg) => msg.role === "user")?.content
-      }" | CSV2Chat`,
+      }" | ${APP_NAME}`,
     description: chat.csvHeaders
       ? `Chat about CSV columns: ${chat.csvHeaders.join(", ")}`
       : "Chat with your CSV using Together.ai",
