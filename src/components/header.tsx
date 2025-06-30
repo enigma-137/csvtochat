@@ -88,7 +88,13 @@ export function Header({ onNewChat, chatId }: HeaderProps) {
       <div
         className={cn(
           "block md:hidden",
-          showBanner ? "min-h-[104px]" : "min-h-[70px]"
+          showBanner ? "min-h-[94px]" : "min-h-[70px]"
+        )}
+      />
+      <div
+        className={cn(
+          "hidden md:block",
+          showBanner ? "min-h-[44px]" : "min-h-[10px]"
         )}
       />
     </>
