@@ -26,6 +26,7 @@ import { ThinkingIndicator } from "./ui/ThinkingIndicator";
 import ReasoningAccordion from "./ReasoningAccordion";
 import { useLLMModel } from "@/hooks/useLLMModel";
 import { CodeRunning } from "./chatTools/CodeRunning";
+import { CHAT_MODELS } from "@/lib/models";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -39,6 +40,7 @@ export type Message = UIMessage & {
     };
   };
   duration?: number; // Duration in seconds for LLM/coding
+  model?: string; // Model used for the message
   isAutoErrorResolution?: boolean; // Added for auto error resolution prompt
 };
 
@@ -373,7 +375,20 @@ export function ChatScreen({
                                 </span>
                               </>
                             )}
-                            {formatLLMTimestamp(currentMessage.createdAt)}
+                            {formatLLMTimestamp(currentMessage.createdAt)}{" "}
+                            {currentMessage?.model && (
+                              <>
+                                <span className="mr-0.5">
+                                  -{" "}
+                                  {
+                                    CHAT_MODELS.find(
+                                      (model) =>
+                                        model.model === currentMessage.model
+                                    )?.title
+                                  }
+                                </span>
+                              </>
+                            )}
                           </span>
                         </div>
                       )}
