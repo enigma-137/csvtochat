@@ -92,7 +92,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex h-[36px] items-center justify-center">
+      <div className="flex h-[32px] items-center justify-center">
         <Button
           variant="ghost"
           size="sm"
@@ -107,7 +107,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
 
   if (chatLinks.length === 0) {
     return (
-      <div className="flex h-[36px] items-center justify-center">
+      <div className="flex h-[32px] items-center justify-center">
         <Button
           variant="ghost"
           size="sm"
@@ -123,7 +123,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   return (
     <>
       {/* Desktop: DropdownMenu, Mobile: Drawer */}
-      <div className="hidden md:flex h-[36px] items-center justify-center">
+      <div className="hidden md:flex h-[32px] items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

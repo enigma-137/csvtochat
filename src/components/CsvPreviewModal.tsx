@@ -10,11 +10,9 @@ import {
 } from "@/components/ui/table";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogOverlay,
-  DialogClose,
 } from "@/components/ui/dialog";
 
 export function CsvPreviewModal({
@@ -53,11 +51,6 @@ export function CsvPreviewModal({
             </TableBody>
           </Table>
         </div>
-        <DialogClose asChild>
-          <button className="mt-4 px-4 py-2 bg-slate-200 rounded hover:bg-slate-300">
-            Close
-          </button>
-        </DialogClose>
       </DialogContent>
     </Dialog>
   );

@@ -5,6 +5,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { intervalToDuration, differenceInSeconds } from "date-fns";
+import { useUserLimits } from "@/hooks/useUserLimits";
 
 function formatTimeRemaining(resetTimestamp: number) {
   const now = new Date();
@@ -27,13 +28,9 @@ function formatTimeRemaining(resetTimestamp: number) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-export default function TooltipUsage({
-  remainingMessages,
-  resetTimestamp,
-}: {
-  remainingMessages: number;
-  resetTimestamp?: number;
-}) {
+export default function TooltipUsage() {
+  const { remainingMessages, resetTimestamp, loading } = useUserLimits();
+
   const [open, setOpen] = useState(false);
   const [tick, setTick] = useState(0);
 
@@ -52,16 +49,20 @@ export default function TooltipUsage({
   return (
     <Tooltip onOpenChange={setOpen} open={open}>
       <TooltipTrigger asChild>
-        <button className="w-[87px] h-7 relative rounded border-[0.5px] border-[#90a1b9] flex flex-row gap-[3px] items-center justify-center cursor-pointer">
-          <img src="/tooltip.svg" className="size-[14px]" />
-          <p className="text-xs text-left text-[#1d293d]">
-            {remainingMessages}
-          </p>
-          <p className="text-xs text-left text-[#45556c]">credits</p>
-        </button>
+        <div className="w-[60px] h-14 relative bg-slate-100 border border-slate-200">
+          <div className="flex flex-col justify-center items-center absolute left-[11px] top-[12.5px] gap-[3px]">
+            <div className="flex justify-start items-start relative gap-[3px]">
+              <img src="/tooltip.svg" className="w-3.5 h-3.5" />
+              <p className=" text-xs text-left text-[#1d293d]">
+                {remainingMessages}
+              </p>
+            </div>
+            <p className=" text-xs text-left text-[#45556c]">credits</p>
+          </div>
+        </div>
       </TooltipTrigger>
       {formattedTime && (
-        <TooltipContent sideOffset={8} className="min-w-[265px] bg-[#1d293d]">
+        <TooltipContent className="min-w-[265px] bg-[#1d293d] m-1">
           <div className="flex justify-center items-center gap-2">
             <p className="text-sm font-medium text-left text-slate-200 leading-0.5">
               Time remaining until refill:

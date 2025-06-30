@@ -8,6 +8,7 @@ import { ChatHistoryMenu } from "./ChatHistoryMenu";
 import { GithubBanner } from "./GithubBanner";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
+import TooltipUsage from "./TooltipUsage";
 
 interface HeaderProps {
   onNewChat?: () => void;
@@ -31,60 +32,56 @@ export function Header({ onNewChat, chatId }: HeaderProps) {
     <>
       <aside
         className={cn(
-          `md:flex-col md:h-screen md:w-20 md:left-0 md:top-0 items-center justify-between p-4 border-b md:border-b-0 md:border-r border-slate-100 z-20 bg-white
-          flex flex-row-reverse
+          `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-slate-100 z-20 bg-white
+          flex flex-row-reverse justify-between
           transition-transform duration-300 ease-in-out
           md:translate-y-0
           fixed top-0 left-0 right-0
-          md:block
-          h-[70px]
+          h-[60px]
           `,
-          showBanner ? "mt-[34px]" : ""
+
+          showBanner
+            ? "mt-[32px] md:h-[calc(100vh-32px)]"
+            : "md:h-[calc(100vh)]"
         )}
         style={{
           boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         }}
       >
         {/* Icons (top on desktop, left on mobile) */}
-        <div className="flex flex-row gap-4 text-slate-400 md:flex-col md:gap-2 md:w-full items-center">
+        <div className="flex flex-row gap-2.5 text-slate-400 md:flex-col md:gap-4 md:w-full items-center">
           <Link
             href="/"
-            className="hidden items-center justify-center md:flex px-4"
+            className="hidden items-center justify-center md:flex p-4 border-b border-[#F1F5F9]"
           >
-            <img src="/logo.svg" className="min-w-[24px]" />
+            <img src="/logo.svg" className="min-w-[22px]" />
           </Link>
 
-          <a href="https://github.com/nutlope">
-            <img src="/github.svg" className="size-9 mx-auto" />
-          </a>
           <ChatHistoryMenu chatId={chatId} />
 
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden gap-1 pl-1.5 pr-2.5 cursor-pointer mx-auto bg-slate-100 border-[0.7px] border-slate-200 h-[36px] text-[#1d293d]"
+            className="gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto text-[#1d293d]"
             onClick={onNewChat}
           >
-            <img src="/new.svg" className="size-9 min-w-[36px]" />
-            <span>New chat</span>
+            <img src="/new.svg" className="size-8 min-w-[32px]" />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hidden md:block gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto text-[#1d293d]"
-            onClick={onNewChat}
-          >
-            <img src="/new.svg" className="size-9 min-w-[36px]" />
-          </Button>
+          <div className="flex md:hidden">
+            <TooltipUsage />
+          </div>
         </div>
         {/* Logo (bottom on desktop, right on mobile) */}
         <Link
           href="/"
-          className="flex items-center md:mt-auto md:mb-2 md:w-full justify-center md:hidden"
+          className="flex items-center md:mt-auto md:mb-2 md:w-full justify-center md:hidden pl-4"
         >
           <img src="/logo.svg" className="size-[24px]" />
         </Link>
+        <div className="hidden md:flex">
+          <TooltipUsage />
+        </div>
       </aside>
       {/* Spacer for mobile header height */}
       <GithubBanner show={showBanner} onClose={() => setShowBanner(false)} />

@@ -22,12 +22,7 @@ export function ChatInput({
   uploadedFile?: UploadedFile;
   placeholder?: string;
 }) {
-  const {
-    remainingMessages,
-    resetTimestamp,
-    loading: limitsLoading,
-    refetch,
-  } = useUserLimits();
+  const { refetch } = useUserLimits();
 
   const handleSendMessage = async () => {
     if (value.trim() === "") return;
