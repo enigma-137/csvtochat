@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useUserLimits } from "@/hooks/useUserLimits";
+import { useUserLimits } from "@/hooks/UserLimitsContext";
 import { PromptInput } from "./PromptInput";
 import { UploadedFile } from "@/lib/utils";
 

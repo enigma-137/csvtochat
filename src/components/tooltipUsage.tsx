@@ -5,7 +5,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { intervalToDuration, differenceInSeconds } from "date-fns";
-import { useUserLimits } from "@/hooks/useUserLimits";
+import { useUserLimits } from "@/hooks/UserLimitsContext";
 
 function formatTimeRemaining(resetTimestamp: number) {
   const now = new Date();

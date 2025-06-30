@@ -1,4 +1,11 @@
-import { useEffect, useState } from "react";
+"use client";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 interface UserLimits {
   remainingMessages: number | null;
@@ -7,7 +14,9 @@ interface UserLimits {
   refetch: () => void;
 }
 
-export function useUserLimits(): UserLimits {
+const UserLimitsContext = createContext<UserLimits | undefined>(undefined);
+
+export const UserLimitsProvider = ({ children }: { children: ReactNode }) => {
   const [remainingMessages, setRemainingMessages] = useState<number | null>(
     null
   );
@@ -30,20 +39,27 @@ export function useUserLimits(): UserLimits {
     }
   };
 
-  // Fetch on fingerprint change
   useEffect(() => {
     fetchLimits();
   }, []);
 
-  // Refetch function
   const refetch = () => {
     fetchLimits();
   };
 
-  return {
-    remainingMessages,
-    resetTimestamp,
-    loading,
-    refetch,
-  };
+  return (
+    <UserLimitsContext.Provider
+      value={{ remainingMessages, resetTimestamp, loading, refetch }}
+    >
+      {children}
+    </UserLimitsContext.Provider>
+  );
+};
+
+export function useUserLimits(): UserLimits {
+  const context = useContext(UserLimitsContext);
+  if (context === undefined) {
+    throw new Error("useUserLimits must be used within a UserLimitsProvider");
+  }
+  return context;
 }

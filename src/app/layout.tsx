@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { UserLimitsProvider } from "@/hooks/UserLimitsContext";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
@@ -24,8 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${instrumentSans.variable} antialiased`}>
-        {children}
-        <Toaster richColors />
+        <UserLimitsProvider>
+          {children}
+          <Toaster richColors />
+        </UserLimitsProvider>
       </body>
     </html>
   );
