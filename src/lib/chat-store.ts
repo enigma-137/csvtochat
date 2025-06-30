@@ -3,6 +3,7 @@ import { Message as AIMsg, generateText } from "ai";
 import { generateId } from "ai";
 import { redis, togetherAISDKClient } from "./clients"; // Import your redis client
 import { generateTitlePrompt } from "./prompts";
+import { EXAMPLE_QUESTION } from "./utils";
 const CHAT_KEY_PREFIX = "chat:";
 
 // Extend the Message type to include duration for Redis persistence
@@ -21,6 +22,20 @@ type ChatData = {
   createdAt?: Date;
   // ...future fields
 };
+
+export async function createExampleChat(): Promise<string> {
+  const csvFileUrl =
+    "https://raw.githubusercontent.com/nutlope/roomgpt/main/data/room_data.csv";
+  const csvHeaders = ["room_id", "room_name", "room_type", "room_capacity"];
+  const userQuestion = EXAMPLE_QUESTION;
+
+  return createChat({
+    userQuestion,
+    csvHeaders,
+    csvRows: [],
+    csvFileUrl,
+  });
+}
 
 export async function createChat({
   userQuestion,
