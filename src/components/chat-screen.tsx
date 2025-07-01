@@ -247,10 +247,6 @@ export function ChatScreen({
     id ? `chatInputDraft-${id}` : "chatInputDraft"
   );
 
-  const handleNewChat = () => {
-    router.push("/");
-  };
-
   const [isCodeRunning, setIsCodeRunning] = useState(false);
   const codeAbortController = useRef<AbortController | null>(null);
   const { messagesContainerRef, messagesEndRef, isUserAtBottom } =
@@ -258,7 +254,7 @@ export function ChatScreen({
 
   return (
     <div className="min-h-screen bg-white flex flex-col w-full h-screen">
-      <Header onNewChat={handleNewChat} chatId={id} />
+      <Header chatId={id} />
 
       <div className="flex flex-col md:ml-[70px] flex-1">
         {/* Messages */}

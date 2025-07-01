@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ChatHistoryMenu } from "./ChatHistoryMenu";
 import { GithubBanner } from "./GithubBanner";
