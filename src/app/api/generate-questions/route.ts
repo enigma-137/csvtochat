@@ -11,8 +11,6 @@ const questionSchema = z.object({
     .describe("A question that can be asked about the provided CSV columns."),
 });
 
-const outputSchema = z.array(questionSchema);
-
 export async function POST(req: Request) {
   try {
     const { columns } = await req.json();
@@ -25,9 +23,12 @@ export async function POST(req: Request) {
     }
 
     const { object: generatedQuestions } = await generateObject({
-      model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
+      model: togetherAISDKClient("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
       mode: "json",
-      schema: outputSchema,
+      output: "array",
+      schema: questionSchema,
+      maxTokens: 1000,
+      maxRetries: 1,
       prompt: generateQuestionsPrompt({ csvHeaders: columns }),
     });
 

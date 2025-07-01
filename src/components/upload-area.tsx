@@ -9,16 +9,18 @@ import { cn, EXAMPLE_QUESTION } from "@/lib/utils";
 interface UploadAreaProps {
   onFileChange: (file: File | null) => void;
   uploadedFile: File | null;
+  setIsLoading: (isLoading: boolean) => void;
 }
 
-export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
-  const [isPreparingExample, setIsPreparingExample] = useState(false);
+export function UploadArea({
+  onFileChange,
+  uploadedFile,
+  setIsLoading,
+}: UploadAreaProps) {
   if (uploadedFile) return <></>;
 
   const onUseExample = async () => {
-    return "not yet";
-
-    setIsPreparingExample(true);
+    setIsLoading(true);
     localStorage.setItem("pendingMessage", EXAMPLE_QUESTION);
     const id = await createExampleChat();
     redirect(`/chat/${id}`);
@@ -28,7 +30,6 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
     <>
       <div className="flex items-center justify-center pointer-events-none w-full flex-col">
         <Dropzone
-          disabled={isPreparingExample}
           multiple={false}
           accept={{
             // accept csv
@@ -36,8 +37,6 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
           }}
           onDrop={(acceptedFiles) => {
             const file = acceptedFiles[0];
-
-            if (isPreparingExample) return;
 
             if (!file) {
               toast.warning("Please upload a CSV file");
@@ -102,10 +101,8 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
         </Dropzone>
       </div>
       <button
-        disabled={isPreparingExample}
         className={cn(
-          "underline text-slate-500 underline-offset-2 mt-3",
-          isPreparingExample ? "cursor-progress" : "cursor-pointer"
+          "underline text-slate-500 underline-offset-2 mt-3 cursor-pointer"
         )}
         onClick={onUseExample}
       >

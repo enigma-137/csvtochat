@@ -46,5 +46,4 @@ export type UploadedFile = {
 
 export const APP_NAME = "CSV2Chat";
 
-export const EXAMPLE_QUESTION =
-  "What is the capacity of the room with the name 'Room 1'?";
+export const EXAMPLE_QUESTION = "What are the top 3 brands by stock quantity?";

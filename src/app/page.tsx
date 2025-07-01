@@ -12,13 +12,18 @@ import { PromptInput } from "@/components/PromptInput";
 import { toast } from "sonner";
 import { useLLMModel } from "@/hooks/useLLMModel";
 import { redirect } from "next/navigation";
+import Loading from "./chat/[id]/loading";
 
 export interface SuggestedQuestion {
   id: string;
   text: string;
 }
 
-function CSVToChatClient({ startNewChat }: { startNewChat: () => void }) {
+function CSVToChatClient({
+  setIsLoading,
+}: {
+  setIsLoading: (load: boolean) => void;
+}) {
   const { uploadToS3 } = useS3Upload();
   const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
@@ -102,6 +107,8 @@ function CSVToChatClient({ startNewChat }: { startNewChat: () => void }) {
 
     localStorage.setItem("pendingMessage", text);
 
+    setIsLoading(true);
+
     const id = await createChat({
       userQuestion: text, // it's not stored in db here just used for chat title!
       csvHeaders: csvHeaders,
@@ -113,7 +120,11 @@ function CSVToChatClient({ startNewChat }: { startNewChat: () => void }) {
 
   return (
     <>
-      <UploadArea onFileChange={handleFileUpload} uploadedFile={localFile} />
+      <UploadArea
+        onFileChange={handleFileUpload}
+        uploadedFile={localFile}
+        setIsLoading={(load) => setIsLoading(load)}
+      />
       {/* Large Input Area */}
       {localFile && (
         <div className="w-full max-w-sm md:max-w-2xl mx-auto">
@@ -173,20 +184,21 @@ function CSVToChatClient({ startNewChat }: { startNewChat: () => void }) {
 }
 
 export default function CSVToChat() {
-  const startNewChat = () => {
-    // This will be passed to the client component for Header
-    // It does nothing here, but can be extended if needed
-  };
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="min-h-screen bg-white">
-      <Header onNewChat={startNewChat} />
+      <Header />
       <div className="flex flex-col items-center px-4 md:px-6 max-w-[655px] mx-auto">
         <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
           <HeroSection />
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <CSVToChatClient startNewChat={startNewChat} />
+          <CSVToChatClient setIsLoading={setIsLoading} />
         </Suspense>
       </div>
     </div>

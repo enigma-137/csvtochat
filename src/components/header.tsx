@@ -11,11 +11,10 @@ import { cn } from "@/lib/utils";
 import TooltipUsage from "./TooltipUsage";
 
 interface HeaderProps {
-  onNewChat?: () => void;
   chatId?: string;
 }
 
-export function Header({ onNewChat, chatId }: HeaderProps) {
+export function Header({ chatId }: HeaderProps) {
   const [showBanner, setShowBanner] = useLocalStorage<boolean>(
     "showBanner",
     true
@@ -59,14 +58,15 @@ export function Header({ onNewChat, chatId }: HeaderProps) {
 
           <ChatHistoryMenu chatId={chatId} />
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto text-[#1d293d]"
-            onClick={onNewChat}
-          >
-            <img src="/new.svg" className="size-8 min-w-[32px]" />
-          </Button>
+          <Link href="/">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto text-[#1d293d]"
+            >
+              <img src="/new.svg" className="size-8 min-w-[32px]" />
+            </Button>
+          </Link>
 
           <div className="flex md:hidden">
             <TooltipUsage />

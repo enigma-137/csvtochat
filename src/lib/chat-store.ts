@@ -25,14 +25,89 @@ type ChatData = {
 
 export async function createExampleChat(): Promise<string> {
   const csvFileUrl =
-    "https://raw.githubusercontent.com/nutlope/roomgpt/main/data/room_data.csv";
-  const csvHeaders = ["room_id", "room_name", "room_type", "room_capacity"];
+    "https://napkinsdev.s3.us-east-1.amazonaws.com/next-s3-uploads/3b241aef-14f2-4881-9746-ede14fe62162/products-100.csv";
+  const csvHeaders = [
+    "Index",
+    "Name",
+    "Description",
+    "Brand",
+    "Category",
+    "Price",
+    "Currency",
+    "Stock",
+    "EAN",
+    "Color",
+    "Size",
+    "Availability",
+    "Internal ID",
+  ];
   const userQuestion = EXAMPLE_QUESTION;
 
   return createChat({
     userQuestion,
     csvHeaders,
-    csvRows: [],
+    csvRows: [
+      {
+        Index: "1",
+        Name: "Compact Printer Air Advanced Digital",
+        Description: "Situation organization these memory much off.",
+        Brand: "Garner, Boyle and Flynn",
+        Category: "Books & Stationery",
+        Price: "265",
+        Currency: "USD",
+        Stock: "774",
+        EAN: "2091465262179",
+        Color: "ForestGreen",
+        Size: "Large",
+        Availability: "pre_order",
+        "Internal ID": "56",
+      },
+      {
+        Index: "34",
+        Name: "Automatic Brush Fast Eco",
+        Description: "Record response relationship.",
+        Brand: "Newman Ltd",
+        Category: "Kids' Clothing",
+        Price: "407",
+        Currency: "USD",
+        Stock: "285",
+        EAN: "2327483415120",
+        Color: "SeaGreen",
+        Size: "8x10 in",
+        Availability: "out_of_stock",
+        "Internal ID": "65",
+      },
+      {
+        Index: "67",
+        Name: "Mini Charger Lock Oven Sense Sense",
+        Description: "Major tell him share allow.",
+        Brand: "Burton, Gross and Giles",
+        Category: "Haircare",
+        Price: "750",
+        Currency: "USD",
+        Stock: "623",
+        EAN: "9282813513019",
+        Color: "Olive",
+        Size: "12x18 in",
+        Availability: "in_stock",
+        "Internal ID": "81",
+      },
+      {
+        Index: "100",
+        Name: "Smart Lamp",
+        Description: "However public major baby.",
+        Brand: "Hebert, Hughes and Trujillo",
+        Category: "Bedding & Bath",
+        Price: "71",
+        Currency: "USD",
+        Stock: "518",
+        EAN: "8264263605712",
+        Color: "Brown",
+        Size: "Medium",
+        Availability: "limited_stock",
+        "Internal ID": "3",
+      },
+    ],
     csvFileUrl,
   });
 }
