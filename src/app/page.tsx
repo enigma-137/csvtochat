@@ -120,11 +120,7 @@ function CSVToChatClient({
 
   return (
     <>
-      <UploadArea
-        onFileChange={handleFileUpload}
-        uploadedFile={localFile}
-        setIsLoading={(load) => setIsLoading(load)}
-      />
+      <UploadArea onFileChange={handleFileUpload} uploadedFile={localFile} />
       {/* Large Input Area */}
       {localFile && (
         <div className="w-full max-w-sm md:max-w-2xl mx-auto">

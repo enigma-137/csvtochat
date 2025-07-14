@@ -1,29 +1,28 @@
 "use client";
 import Dropzone from "react-dropzone";
-import React, { useState } from "react";
+import React from "react";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
-import { createExampleChat } from "@/lib/chat-store";
-import { cn, EXAMPLE_QUESTION } from "@/lib/utils";
+import { cn, EXAMPLE_FILE_URL } from "@/lib/utils";
 
 interface UploadAreaProps {
   onFileChange: (file: File | null) => void;
   uploadedFile: File | null;
-  setIsLoading: (isLoading: boolean) => void;
 }
 
-export function UploadArea({
-  onFileChange,
-  uploadedFile,
-  setIsLoading,
-}: UploadAreaProps) {
+export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
   if (uploadedFile) return <></>;
 
   const onUseExample = async () => {
-    setIsLoading(true);
-    localStorage.setItem("pendingMessage", EXAMPLE_QUESTION);
-    const id = await createExampleChat();
-    redirect(`/chat/${id}`);
+    try {
+      const response = await fetch(EXAMPLE_FILE_URL);
+      const blob = await response.blob();
+      const file = new File([blob], "products.csv", {
+        type: "text/csv",
+      });
+      onFileChange(file);
+    } catch (error) {
+      toast.error("Failed to load example CSV");
+    }
   };
 
   return (

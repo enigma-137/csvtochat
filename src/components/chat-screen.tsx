@@ -6,9 +6,7 @@ import { Header } from "@/components/header";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
-import { CodeRender } from "./code-render";
 import { type UIMessage } from "ai";
-import { useRouter } from "next/navigation";
 import { ImageFigure } from "./chatTools/ImageFigure";
 import { TerminalOutput } from "./chatTools/TerminalOutput";
 import { ErrorOutput } from "./chatTools/ErrorOutput";
@@ -27,6 +25,7 @@ import ReasoningAccordion from "./ReasoningAccordion";
 import { useLLMModel } from "@/hooks/useLLMModel";
 import { CodeRunning } from "./chatTools/CodeRunning";
 import { CHAT_MODELS } from "@/lib/models";
+import { useRouter } from "next/navigation";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -53,8 +52,13 @@ export function ChatScreen({
   id?: string;
   initialMessages?: DbMessage[];
 }) {
-  const { selectedModelSlug } = useLLMModel();
   const router = useRouter();
+  const { selectedModelSlug } = useLLMModel();
+
+  const modelContextLength = CHAT_MODELS.find(
+    (model) => model.slug === selectedModelSlug
+  )?.contextLength;
+
   const { messages, setMessages, append, stop, status } = useChat({
     id, // use the provided chat ID
     initialMessages: initialMessages || [], // initial messages if provided
@@ -252,9 +256,48 @@ export function ChatScreen({
   const { messagesContainerRef, messagesEndRef, isUserAtBottom } =
     useAutoScroll({ status, isCodeRunning });
 
+  // Token counting logic (approximate: 1 token ≈ 4 chars)
+  const [tokenInfo, setTokenInfo] = useState({
+    tokens: 0,
+    percent: 0,
+    max: modelContextLength || 0,
+  });
+
+  useEffect(() => {
+    if (!modelContextLength) return;
+    // Only count user/assistant messages (not tool calls)
+    const text = messages
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .map((m) => m.content)
+      .join("\n");
+    // Approximate token count: 1 token ≈ 3 chars
+    const approxTokens = Math.ceil(text.length / 3);
+    const percent = Math.min(100, (approxTokens / modelContextLength) * 100);
+    setTokenInfo({ tokens: approxTokens, percent, max: modelContextLength });
+  }, [messages, modelContextLength]);
+
   return (
     <div className="min-h-screen bg-white flex flex-col w-full h-screen">
       <Header chatId={id} />
+
+      {/* Context usage bar */}
+      <div className="w-full flex flex-col items-center py-2">
+        <div className="w-full max-w-[700px] px-4">
+          <div className="flex justify-between text-xs text-slate-500 mb-1">
+            <span>Context used</span>
+            <span>
+              {tokenInfo.tokens} / {tokenInfo.max} tokens (
+              {tokenInfo.percent.toFixed(1)}%)
+            </span>
+          </div>
+          <div className="w-full h-2 bg-slate-200 rounded">
+            <div
+              className="h-2 bg-blue-500 rounded"
+              style={{ width: `${tokenInfo.percent}%` }}
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="flex flex-col md:ml-[70px] flex-1">
         {/* Messages */}

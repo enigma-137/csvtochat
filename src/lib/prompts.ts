@@ -19,8 +19,6 @@ export const generateCodePrompt = ({
     sampleRowsSection = `\n\nHere are a few sample rows from the dataset:\n\n${headerRow}\n${separatorRow}\n${dataRows}`;
   }
 
-  console.log("sampleRowsSection", sampleRowsSection);
-
   return `
 You are an expert data scientist assistant that writes python code to answer questions about a dataset.
 
