@@ -24,6 +24,39 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   );
   const [isLoading, setLoading] = useState(true);
 
+  // Badge component for notification bubble
+  const ChatBadge = ({ count }: { count: number }) => {
+    if (count <= 0) return null;
+    const displayCount = count > 99 ? "99+" : count;
+    return (
+      <span
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          transform: "translate(40%, -50%)",
+          background: "#ef4444", // Tailwind red-500
+          color: "white",
+          borderRadius: "9999px",
+          minWidth: "16px",
+          height: "16px",
+          lineHeight: "16px",
+          fontSize: "10px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 4px",
+          fontWeight: 700,
+          zIndex: 10,
+          boxShadow: "0 0 0 2px white",
+        }}
+        aria-label={`You have ${displayCount} chats`}
+      >
+        {displayCount}
+      </span>
+    );
+  };
+
   // Track visited chat ids in localStorage
   useEffect(() => {
     if (typeof window !== "undefined" && chatId) {
@@ -97,9 +130,12 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
           variant="ghost"
           size="sm"
           onClick={() => {}}
-          className="cursor-progress !p-1 mx-auto"
+          className="cursor-progress !p-1 mx-auto relative"
         >
-          <img src="/history.svg" className="size-9" />
+          <span style={{ position: "relative", display: "inline-block" }}>
+            <img src="/history.svg" className="size-9" />
+            <ChatBadge count={chatLinks.length} />
+          </span>
         </Button>
       </div>
     );
@@ -112,9 +148,12 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
           variant="ghost"
           size="sm"
           disabled
-          className="cursor-not-allowed !p-1 mx-auto"
+          className="cursor-not-allowed !p-1 mx-auto relative"
         >
-          <img src="/history.svg" className="size-9" />
+          <span style={{ position: "relative", display: "inline-block" }}>
+            <img src="/history.svg" className="size-9" />
+            {/* No badge if no chats */}
+          </span>
         </Button>
       </div>
     );
@@ -129,9 +168,12 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
             <Button
               variant="ghost"
               size="sm"
-              className="cursor-pointer !p-1 mx-auto"
+              className="cursor-pointer !p-1 mx-auto relative"
             >
-              <img src="/history.svg" className="size-9" />
+              <span style={{ position: "relative", display: "inline-block" }}>
+                <img src="/history.svg" className="size-9" />
+                <ChatBadge count={chatLinks.length} />
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start" className="!p-0">
@@ -148,9 +190,12 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
             <Button
               variant="ghost"
               size="sm"
-              className="cursor-pointer !p-1 mx-auto"
+              className="cursor-pointer !p-1 mx-auto relative"
             >
-              <img src="/history.svg" className="size-9" />
+              <span style={{ position: "relative", display: "inline-block" }}>
+                <img src="/history.svg" className="size-9" />
+                <ChatBadge count={chatLinks.length} />
+              </span>
             </Button>
           </DrawerTrigger>
           <DrawerContent className="!bg-slate-100 !border-[0.5px] !border-[#45556c] pt-6">
