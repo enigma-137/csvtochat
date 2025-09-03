@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { ThinkingIndicator } from "../ui/ThinkingIndicator";
-import { CodeRender } from "../code-render";
+import { useEffect, useState } from 'react';
+import { ThinkingIndicator } from '../ui/ThinkingIndicator';
+import { CodeRender } from '../code-render';
 
 // Subcomponent for code running progress
 export const CodeRunning = () => {
   const [progress, setProgress] = useState(0);
   const statuses = [
-    "Starting the remote coding instance",
-    "Passing the python code",
-    "Downloading S3 file",
-    "Setting up environment",
-    "Installing dependencies",
-    "Executing code",
-    "Collecting outputs",
-    "Finalizing results",
+    'Starting the remote coding instance',
+    'Passing the python code',
+    'Downloading S3 file',
+    'Setting up environment',
+    'Installing dependencies',
+    'Executing code',
+    'Collecting outputs',
+    'Finalizing results',
   ];
   // Divide progress into equal segments for each status
   const statusIndex = Math.min(
@@ -43,14 +43,14 @@ export const CodeRunning = () => {
 
   return (
     <>
-      <ThinkingIndicator thought={`Running Together Code Interpreter...`} />
-      <div className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse w-full">
+      <ThinkingIndicator thought={`Executing code`} />
+      <div className='mt-4 rounded-lg overflow-hidden border border-slate-700 bg-[#1e1e1e] animate-pulse w-full'>
         <CodeRender
-          code={`# ${currentStatus}\n[${"=".repeat(
+          code={`# ${currentStatus}\n[${'='.repeat(
             Math.floor(progress / 4)
-          )}${" ".repeat(25 - Math.floor(progress / 4))}] ${progress}%`}
-          language="bash"
-          theme="dark"
+          )}${' '.repeat(25 - Math.floor(progress / 4))}] ${progress}%`}
+          language='bash'
+          theme='dark'
         />
       </div>
     </>
