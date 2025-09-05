@@ -15,7 +15,7 @@ export const GithubBanner: React.FC<GithubBannerProps> = ({
     async function fetchStars() {
       try {
         const res = await fetch(
-          "https://api.github.com/repos/nutlope/roomgpt",
+          "https://github.com/Nutlope/csvtochat",
           {
             headers: {
               Accept: "application/vnd.github+json",
@@ -41,7 +41,7 @@ export const GithubBanner: React.FC<GithubBannerProps> = ({
 
   return (
     <a
-      href="https://github.com/nutlope/roomgpt"
+      href="https://github.com/Nutlope/csvtochat"
       target="_blank"
       rel="noopener noreferrer"
       className="fixed w-full h-[34px] flex items-center overflow-hidden bg-[#1d293d] border-b border-slate-200 px-4 justify-center cursor-pointer z-20"

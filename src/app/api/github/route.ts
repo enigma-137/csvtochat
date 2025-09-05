@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 const fetchStargazers = unstable_cache(
   async () => {
-    const res = await fetch("https://api.github.com/repos/nutlope/roomgpt", {
+    const res = await fetch("https://github.com/Nutlope/csvtochat", {
       headers: {
         Accept: "application/vnd.github+json",
         "User-Agent": "csvtochat-app",
