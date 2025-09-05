@@ -27,7 +27,7 @@ export const CHAT_MODELS: ChatModel[] = [
   {
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openai.png',
     title: 'GPT OSS 120B',
-    model: 'openai/gpt-oss-120b	',
+    model: 'openai/gpt-oss-120b',
     slug: 'gpt-oss-120b',
     contextLength: 128000,
   },
