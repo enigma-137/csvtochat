@@ -15,7 +15,7 @@ export const GithubBanner: React.FC<GithubBannerProps> = ({
     async function fetchStars() {
       try {
         const res = await fetch(
-          "https://github.com/Nutlope/csvtochat",
+          "https://api.github.com/repos/Nutlope/csvtochat",
           {
             headers: {
               Accept: "application/vnd.github+json",
