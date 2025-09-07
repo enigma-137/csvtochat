@@ -22,8 +22,11 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("Generating questions for columns:", columns);
+    console.log("Prompt:", generateQuestionsPrompt({ csvHeaders: columns }));
+
     const { object: generatedQuestions } = await generateObject({
-      model: togetherAISDKClient("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
+      model: togetherAISDKClient("meta-llama/Llama-4-Scout-17B-16E-Instruct"),
       mode: "json",
       output: "array",
       schema: questionSchema,

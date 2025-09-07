@@ -103,14 +103,18 @@ export const generateQuestionsPrompt = ({
 }: {
   csvHeaders: string[];
 }) =>
-  `Generate 3 insightful questions that can be asked to analyze a CSV file with the following columns:
-   ${csvHeaders.join(", ")}. 
-   
-  Focus on questions that would reveal trends, comparisons, or insights from the data.
-  
-  Each question must be direct, concise, and short enough to fit in a single row. 
-  
-  Do not include phrases like "in the dataset", "from the data", or "in the CSV file". 
-  
-  Provide the questions in the format: {id: string, text: string}.
-`;
+  `You are an AI assistant that generates questions for data analysis.
+
+Given the CSV columns: ${csvHeaders.join(", ")}
+
+Generate exactly 3 insightful questions that can be asked to analyze this data. Focus on questions that would reveal trends, comparisons, or insights.
+
+Each question should be:
+- Direct and concise
+- Short enough to fit in a single row
+- Without phrases like "in the dataset", "from the data", or "in the CSV file"
+
+Return ONLY a JSON array of objects, each with "id" (unique string) and "text" (the question string). Do not include any other text, explanations, or the JSON schema.
+
+Example format:
+[{"id": "q1", "text": "What is the average price by category?"}, {"id": "q2", "text": "How many items sold per month?"}]`;

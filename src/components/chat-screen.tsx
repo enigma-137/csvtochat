@@ -282,7 +282,7 @@ export function ChatScreen({
 
       {/* Context usage bar */}
       <div className="w-full flex flex-col items-center py-2">
-        <div className="w-full max-w-[700px] px-4">
+        <div className="w-full max-w-[700px] px-4 md:ml-[70px]">
           <div className="flex justify-between text-xs text-slate-500 mb-1">
             <span>Context used</span>
             <span>
