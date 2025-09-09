@@ -117,4 +117,6 @@ Each question should be:
 Return ONLY a JSON array of objects, each with "id" (unique string) and "text" (the question string). Do not include any other text, explanations, or the JSON schema.
 
 Example format:
-[{"id": "q1", "text": "What is the average price by category?"}, {"id": "q2", "text": "How many items sold per month?"}]`;
+[{"id": "q1", "text": "What is the average price by category?"}, {"id": "q2", "text": "How many items sold per month?"}]
+
+Do not wrap the array in any additional object or key like "elements". Return the array directly.`;
